@@ -35,22 +35,24 @@ void read_configuration_data(Data_Passer* data_passer) {
 	JsonNode *root = json_parser_get_root(parser);
 	JsonObject *root_object = json_node_get_object(root);
 
-	/* Read the database file information. */
+	/* Read the data information. */
 
-	JsonObject *database_object = json_object_get_object_member(root_object, "database");
+	JsonObject *database_object = json_object_get_object_member(root_object, "data");
 
-	g_free(data_passer->database_filename);
-	const gchar *barf = json_object_get_string_member(database_object, "database_directory");
-	data_passer->database_filename = g_strdup(barf);
-	//data_passer->database_filename = g_strdup(json_object_get_string_member(database_object, "database_filename"));
+	data_passer->data_directory = g_strdup(json_object_get_string_member(database_object, "data_directory"));
+	data_passer->database_filename = g_strdup(json_object_get_string_member(database_object, "database_filename"));
+	data_passer->log_filename = g_strdup(json_object_get_string_member(database_object, "log_filename"));
+	data_passer->run_time.log_file = NULL;
+
 
 	g_object_unref(parser);
 }
 
 Data_Passer * startup() {
 	Data_Passer *data_passer = g_malloc(sizeof(Data_Passer));
-	data_passer->database_directory = NULL;
+	data_passer->data_directory = NULL;
 	data_passer->database_filename = NULL;
+	data_passer->log_filename = NULL;
 	data_passer->csv_file_directory= NULL;
 
 	read_configuration_data(data_passer);

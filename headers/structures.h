@@ -7,10 +7,14 @@
  *      Author: abba
  */
 
-
+typedef struct Run_Time {
+	FILE *log_file;
+} Run_Time;
 
 typedef struct Data_Passer {
-	gchar *database_directory;
+	gchar *data_directory;
 	gchar *database_filename;
+	gchar *log_filename;
 	gchar *csv_file_directory;
+	Run_Time run_time;
 } Data_Passer;
