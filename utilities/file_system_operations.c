@@ -16,23 +16,27 @@ gboolean exists_data_directory(Data_Passer *data_passer) {
 	}
 }
 
-GSList *get_csv_files(Data_Passer *data_passer) {
+void get_csv_files(Data_Passer *data_passer) {
 
 	GError *error = NULL;
 	GDir *dir= NULL;
-	GSList csv_file_list;
 	dir = g_dir_open (data_passer->csv_file_directory, 0, &error);
 	if (dir == NULL) {
-		write_log_message(G_LOG_LEVEL_ERROR, "Could not open the CSV directory.",
-								data_passer->run_time.log_file);
+		write_log_message(G_LOG_LEVEL_ERROR, error->message, data_passer->run_time.log_file);
 		g_error_free(error);
-		return NULL;
+		return;
 	}
+	GSList *csv_files = data_passer->run_time.csv_files;
 	const gchar *filename = g_dir_read_name (dir);
 	while (filename != NULL) {
+		if g_str_has_suffix(filename, ".csv") {
+				if (!g_str_has_suffix (filename, "all_downloaded_table_record_counts.csv") &&
+						!g_str_has_suffix (filename, "sample_food.csv")) {
+					csv_files = g_slist_append (csv_files, filename);
+				}
+		}
 		g_print("%s\n", filename);
 		filename = g_dir_read_name (dir);
 	}
-	return &csv_file_list;
 
 }

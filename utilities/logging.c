@@ -50,6 +50,7 @@ gboolean start_logger(Data_Passer *data_passer) {
 		return FALSE;
 	}
 
+/*
 	const gchar message[] = "Hello there";
 
 	write_log_message(G_LOG_LEVEL_CRITICAL, message, data_passer->run_time.log_file);
@@ -57,6 +58,7 @@ gboolean start_logger(Data_Passer *data_passer) {
 	write_log_message(G_LOG_LEVEL_MESSAGE, message, data_passer->run_time.log_file);
 	write_log_message(G_LOG_LEVEL_INFO, message, data_passer->run_time.log_file);
 	write_log_message(G_LOG_LEVEL_DEBUG, message, data_passer->run_time.log_file);
+*/
 
 	return TRUE;
 }

@@ -57,6 +57,7 @@ Data_Passer * startup() {
 	data_passer->csv_file_directory= NULL;
 	data_passer->run_time.log_file = NULL;
 	data_passer->run_time.db = NULL;
+	data_passer->run_time.csv_files = NULL;
 
 	read_configuration_data(data_passer);
 	return data_passer;

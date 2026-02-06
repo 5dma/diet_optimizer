@@ -1,7 +1,6 @@
 #include <headers.h>
 #include <stddef.h>
 
-
 void cleanup(Data_Passer *data_passer) {
     if (data_passer->data_directory) {
         g_free(data_passer->data_directory);
@@ -19,6 +18,13 @@ void cleanup(Data_Passer *data_passer) {
 	if (data_passer->run_time.log_file) {
 		fclose(data_passer->run_time.log_file);
 	}
+	if (data_passer->run_time.csv_files) {
+		g_slist_free_full (data_passer->run_time.csv_files, g_free);
+	}
+	if (data_passer->run_time.db) {
+		sqlite3_close(data_passer->run_time.db);
+	}
+
     g_free(data_passer);
 
 }

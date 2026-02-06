@@ -3,15 +3,15 @@
 #include <glib.h>
 #include "../headers/headers.h"
 
+
+
+void make_table (gpointer csv_filename, gpointer user_data) {
+	g_print("%s\n", (gchar *)csv_filename);
+
+
+}
+
 gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
-	const gchar csv_files[16][40] = { "food_attribute.csv", "food_attribute_type.csv",
-			"food_calorie_conversion_factor.csv", "food_category.csv",
-			"food.csv", "food_nutrient_conversion_factor.csv",
-			"food_nutrient.csv", "food_nutrient_derivation.csv",
-			"food_nutrient_source.csv", "food_portion.csv",
-			"food_protein_conversion_factor.csv", "food_update_log_entry.csv",
-			"measure_unit.csv", "nutrient.csv", "retention_factor.csv",
-			"sr_legacy_food.csv" };
 
 	int rc = sqlite3_open(database_file, &(data_passer->run_time.db));
 	if (rc != SQLITE_OK) {
@@ -20,6 +20,14 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 		return FALSE;
 	}
 	get_csv_files(data_passer);
+	if (data_passer->run_time.csv_files == NULL) {
+		write_log_message(G_LOG_LEVEL_CRITICAL, "Could not find the list of CSV files, exiting.",
+						data_passer->run_time.log_file);
+		return FALSE;
+	}
+	g_slist_foreach (data_passer->run_time.csv_files, make_table,NULL);
+
+	return TRUE;
 
 }
 
