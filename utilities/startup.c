@@ -42,6 +42,7 @@ void read_configuration_data(Data_Passer* data_passer) {
 	data_passer->data_directory = g_strdup(json_object_get_string_member(database_object, "data_directory"));
 	data_passer->database_filename = g_strdup(json_object_get_string_member(database_object, "database_filename"));
 	data_passer->log_filename = g_strdup(json_object_get_string_member(database_object, "log_filename"));
+	data_passer->csv_file_directory = g_strdup(json_object_get_string_member(database_object, "csv_file_directory"));
 	data_passer->run_time.log_file = NULL;
 
 
@@ -54,6 +55,8 @@ Data_Passer * startup() {
 	data_passer->database_filename = NULL;
 	data_passer->log_filename = NULL;
 	data_passer->csv_file_directory= NULL;
+	data_passer->run_time.log_file = NULL;
+	data_passer->run_time.db = NULL;
 
 	read_configuration_data(data_passer);
 	return data_passer;

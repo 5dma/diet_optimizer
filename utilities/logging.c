@@ -3,7 +3,7 @@
 #include "utilities.h"
 #define LOG_LEVEL_LENGTH 50
 
-void barf(GLogLevelFlags log_level, const gchar *message, gpointer user_data) {
+void write_log_message(GLogLevelFlags log_level, const gchar *message, gpointer user_data) {
 	FILE *stream = (FILE*) user_data;
 
 	gchar my_log_level[LOG_LEVEL_LENGTH + 1];
@@ -52,11 +52,11 @@ gboolean start_logger(Data_Passer *data_passer) {
 
 	const gchar message[] = "Hello there";
 
-	barf(G_LOG_LEVEL_CRITICAL, message, data_passer->run_time.log_file);
-	barf(G_LOG_LEVEL_WARNING, message, data_passer->run_time.log_file);
-	barf(G_LOG_LEVEL_MESSAGE, message, data_passer->run_time.log_file);
-	barf(G_LOG_LEVEL_INFO, message, data_passer->run_time.log_file);
-	barf(G_LOG_LEVEL_DEBUG, message, data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_CRITICAL, message, data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_WARNING, message, data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_MESSAGE, message, data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_INFO, message, data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_DEBUG, message, data_passer->run_time.log_file);
 
 	return TRUE;
 }

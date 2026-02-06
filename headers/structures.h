@@ -9,6 +9,7 @@
 
 typedef struct Run_Time {
 	FILE *log_file;
+	sqlite3 *db;
 } Run_Time;
 
 typedef struct Data_Passer {
