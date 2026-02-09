@@ -40,6 +40,7 @@ void make_table(gpointer filename, gpointer user_data) {
 	fgets(line, sizeof(line), file);
 	g_print("%s\n", line);
 	fclose(file);
+	g_free(csv_filename);
 
 	GMatchInfo *match_info = NULL;
 	g_regex_match(regex, line, 0, &match_info);
@@ -51,12 +52,14 @@ void make_table(gpointer filename, gpointer user_data) {
 	}
 
     do {
-        const gchar *match = g_match_info_fetch(match_info, 1);  // Fetch the first capturing group
+        gchar *match = g_match_info_fetch(match_info, 1);  // Fetch the first capturing group
         if (match) {
             g_print("Found match: %s\n", match);
         }
+        g_free(match);
+        g_match_info_free(match_info);
     } while (g_match_info_next(match_info, &error));
-
+    g_regex_unref(regex);
 }
 
 /*
