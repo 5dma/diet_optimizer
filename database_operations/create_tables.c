@@ -7,8 +7,8 @@
 #include <glib.h>
 #include <headers.h>
 
-gchar *make_csv_filename(const gchar *directory, const gchar *csv_file) {
-	gchar *csv_filename = g_malloc( 256 *  sizeof(gchar));
+gchar* make_csv_filename(const gchar *directory, const gchar *csv_file) {
+	gchar *csv_filename = g_malloc(256 * sizeof(gchar));
 	gchar *pointer = g_stpcpy(csv_filename, directory);
 	pointer = g_stpcpy(pointer, csv_file);
 	return csv_filename;
@@ -16,7 +16,7 @@ gchar *make_csv_filename(const gchar *directory, const gchar *csv_file) {
 
 void make_table(gpointer filename, gpointer user_data) {
 	GError *error = NULL;
-	Data_Passer *data_passer = (Data_Passer *)user_data;
+	Data_Passer *data_passer = (Data_Passer*) user_data;
 	// The regex pattern is "([^"]+)"
 	GRegex *regex = g_regex_new("\"([^\"]+)\"", G_REGEX_DEFAULT,
 			G_REGEX_MATCH_DEFAULT, &error);
@@ -27,7 +27,8 @@ void make_table(gpointer filename, gpointer user_data) {
 		return;
 	}
 
-	gchar *csv_filename = make_csv_filename(data_passer->csv_file_directory, (gchar *)filename);
+	gchar *csv_filename = make_csv_filename(data_passer->csv_file_directory,
+			(gchar*) filename);
 	g_print("Processing %s\n", (gchar*) csv_filename);
 
 	FILE *file = fopen(csv_filename, "r");
@@ -40,22 +41,35 @@ void make_table(gpointer filename, gpointer user_data) {
 	g_print("%s\n", line);
 	fclose(file);
 
-	g_regex_unref(regex);
-	g_free(csv_filename);
+	GMatchInfo *match_info = NULL;
+	g_regex_match(regex, line, 0, &match_info);
+	if (error) {
+		g_printerr("Error matching regex: %s\n", error->message);
+		g_error_free(error);
+		g_regex_unref(regex);
+		return;
+	}
+
+    do {
+        const gchar *match = g_match_info_fetch(match_info, 1);  // Fetch the first capturing group
+        if (match) {
+            g_print("Found match: %s\n", match);
+        }
+    } while (g_match_info_next(match_info, &error));
+
 }
 
-
 /*
-	gchar *csv_filename = make_csv_filename(data_passer->csv_file_directory, csv_file);
-	fopen
-	read first line
-	parse field names
-	read remaining lines, deduce field type (NULL, Integer, Real, text)
-	build table name (from .csv string)
-	Build create table statement
-	Execute create table statement
+ gchar *csv_filename = make_csv_filename(data_passer->csv_file_directory, csv_file);
+ fopen
+ read first line
+ parse field names
+ read remaining lines, deduce field type (NULL, Integer, Real, text)
+ build table name (from .csv string)
+ Build create table statement
+ Execute create table statement
 
 
-	g_free(csv_filename);
-	return TRUE;*/
+ g_free(csv_filename);
+ return TRUE;*/
 

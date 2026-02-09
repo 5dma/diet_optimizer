@@ -33,9 +33,7 @@ void get_csv_files(Data_Passer *data_passer) {
 				if (!g_str_has_suffix (filename, "all_downloaded_table_record_counts.csv") &&
 						!g_str_has_suffix (filename, "sample_food.csv")) {
 						gchar *filename_not_constant = g_strdup (filename);
-						g_print("The nonconstant filename is %s\n", filename_not_constant);
 					data_passer->run_time.csv_files = g_slist_append (data_passer->run_time.csv_files, filename_not_constant);
-					g_print("The filename is %s\n", filename);
 				}
 		}
 		filename = g_dir_read_name (dir);

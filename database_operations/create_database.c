@@ -21,7 +21,6 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 				data_passer->run_time.log_file);
 		return FALSE;
 	}
-	g_print("The number of files is %i\n", g_slist_length (data_passer->run_time.csv_files));
 	g_slist_foreach(data_passer->run_time.csv_files, make_table, data_passer);
 
 	return TRUE;
