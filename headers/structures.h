@@ -1,5 +1,6 @@
 #pragma once
-#include <gtk/gtk.h>
+#include <stdio.h>
+#include <glib.h>
 /*
  * structures.h
  *

@@ -26,17 +26,20 @@ void get_csv_files(Data_Passer *data_passer) {
 		g_error_free(error);
 		return;
 	}
-	GSList *csv_files = data_passer->run_time.csv_files;
+
 	const gchar *filename = g_dir_read_name (dir);
 	while (filename != NULL) {
 		if g_str_has_suffix(filename, ".csv") {
 				if (!g_str_has_suffix (filename, "all_downloaded_table_record_counts.csv") &&
 						!g_str_has_suffix (filename, "sample_food.csv")) {
-					csv_files = g_slist_append (csv_files, filename);
+						gchar *filename_not_constant = g_strdup (filename);
+						g_print("The nonconstant filename is %s\n", filename_not_constant);
+					data_passer->run_time.csv_files = g_slist_append (data_passer->run_time.csv_files, filename_not_constant);
+					g_print("The filename is %s\n", filename);
 				}
 		}
-		g_print("%s\n", filename);
 		filename = g_dir_read_name (dir);
 	}
+	g_dir_close(dir);
 
 }

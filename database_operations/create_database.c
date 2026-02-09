@@ -5,27 +5,24 @@
 
 
 
-void make_table (gpointer csv_filename, gpointer user_data) {
-	g_print("%s\n", (gchar *)csv_filename);
-
-
-}
-
 gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 
 	int rc = sqlite3_open(database_file, &(data_passer->run_time.db));
 	if (rc != SQLITE_OK) {
-		write_log_message(G_LOG_LEVEL_CRITICAL, "Could not create the database, exiting.",
-						data_passer->run_time.log_file);
+		write_log_message(G_LOG_LEVEL_CRITICAL,
+				"Could not create the database, exiting.",
+				data_passer->run_time.log_file);
 		return FALSE;
 	}
 	get_csv_files(data_passer);
 	if (data_passer->run_time.csv_files == NULL) {
-		write_log_message(G_LOG_LEVEL_CRITICAL, "Could not find the list of CSV files, exiting.",
-						data_passer->run_time.log_file);
+		write_log_message(G_LOG_LEVEL_CRITICAL,
+				"Could not find the list of CSV files, exiting.",
+				data_passer->run_time.log_file);
 		return FALSE;
 	}
-	g_slist_foreach (data_passer->run_time.csv_files, make_table,NULL);
+	g_print("The number of files is %i\n", g_slist_length (data_passer->run_time.csv_files));
+	g_slist_foreach(data_passer->run_time.csv_files, make_table, data_passer);
 
 	return TRUE;
 
