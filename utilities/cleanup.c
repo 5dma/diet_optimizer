@@ -25,6 +25,7 @@ void cleanup(Data_Passer *data_passer) {
 		sqlite3_close(data_passer->run_time.db);
 	}
 
+
     g_free(data_passer);
 
 }

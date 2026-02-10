@@ -19,5 +19,7 @@ typedef struct Data_Passer {
 	gchar *database_filename;
 	gchar *log_filename;
 	gchar *csv_file_directory;
+	GRegex *csv_column_name_regex;
+	GError *error;
 	Run_Time run_time;
 } Data_Passer;

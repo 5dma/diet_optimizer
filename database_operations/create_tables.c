@@ -15,17 +15,8 @@ gchar* make_csv_filename(const gchar *directory, const gchar *csv_file) {
 }
 
 void make_table(gpointer filename, gpointer user_data) {
-	GError *error = NULL;
 	Data_Passer *data_passer = (Data_Passer*) user_data;
 	// The regex pattern is "([^"]+)"
-	GRegex *regex = g_regex_new("\"([^\"]+)\"", G_REGEX_DEFAULT,
-			G_REGEX_MATCH_DEFAULT, &error);
-
-	if (regex == NULL) {
-		g_print("Error creating regex: %s", error->message);
-		g_error_free(error);
-		return;
-	}
 
 	gchar *csv_filename = make_csv_filename(data_passer->csv_file_directory,
 			(gchar*) filename);
@@ -43,11 +34,15 @@ void make_table(gpointer filename, gpointer user_data) {
 	g_free(csv_filename);
 
 	GMatchInfo *match_info = NULL;
-	g_regex_match(regex, line, 0, &match_info);
-	if (error) {
-		g_printerr("Error matching regex: %s\n", error->message);
-		g_error_free(error);
-		g_regex_unref(regex);
+	data_passer->error = NULL;
+
+//	GRegex * csv_column_name_regex = g_regex_new("\"([^\"]+)\"", G_REGEX_DEFAULT, G_REGEX_MATCH_DEFAULT, &(data_passer->error));
+
+	g_regex_match(data_passer->csv_column_name_regex, line, 0, &match_info);
+	if (data_passer->error) {
+		g_printerr("Error matching regex: %s\n", data_passer->error->message);
+		g_error_free(data_passer->error);
+		data_passer->error = NULL;
 		return;
 	}
 
@@ -57,9 +52,9 @@ void make_table(gpointer filename, gpointer user_data) {
             g_print("Found match: %s\n", match);
         }
         g_free(match);
-        g_match_info_free(match_info);
-    } while (g_match_info_next(match_info, &error));
-    g_regex_unref(regex);
+
+    } while (g_match_info_next(match_info, &(data_passer->error)));
+    g_match_info_free(match_info);
 }
 
 /*
