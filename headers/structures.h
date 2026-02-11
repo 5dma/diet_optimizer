@@ -1,6 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <glib.h>
+#include "constants.h"
 /*
  * structures.h
  *
@@ -23,3 +24,19 @@ typedef struct Data_Passer {
 	GError *error;
 	Run_Time run_time;
 } Data_Passer;
+
+/**
+ * Enum for declaring a list store of accounts. These correspond to the SQLite data types (see [Storage Classes and Datatypes](https://sqlite.org/datatype3.html#storage_classes_and_datatypes). This enumeration is used in Field_analysis.
+ */
+enum sqlite_data_type {
+	TRASH, /**< Artificial type for initialization. */
+	NULL_S, /** SQLite `NULL` value. */
+	INTEGER, /** Integer. */
+	REAL, /**< Real number. */
+	TEXT /**< Text string. */
+};
+
+typedef struct Column_Definition {
+	gchar column_name[MAX_COLUMN_NAME_LENGTH];
+	enum sqlite_data_type column_type;
+} Column_Definition;
