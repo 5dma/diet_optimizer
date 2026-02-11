@@ -81,7 +81,6 @@ void make_table(gpointer filename, gpointer user_data) {
 		} while (g_match_info_next(match_info, &(data_passer->error)));
 
 	}
-
 	fclose(file);
 	g_match_info_free(match_info);
 	g_free(csv_filename);

@@ -56,7 +56,9 @@ void do_sqlite_tests(const gchar *csv_value, Column_Definition *table_column) {
 			table_column->column_type = TEXT;
 			break;
 		case INTEGER:
-			passes_test = is_integer(csv_value);
+			/* If the column is already an integer
+				and we received a null value, it's still an integer. */
+			passes_test = is_integer(csv_value) || is_null(csv_value);
 			if (passes_test) break;
 			passes_test = is_real(csv_value);
 			if (passes_test) {
@@ -66,7 +68,9 @@ void do_sqlite_tests(const gchar *csv_value, Column_Definition *table_column) {
 			table_column->column_type = TEXT;
 			break;
 		case REAL:
-			passes_test = is_real(csv_value);
+			/* If the column is already a real
+				and we received a null value, it's still real. */
+			passes_test = is_real(csv_value) || is_null(csv_value);
 			if (passes_test) break;
 			table_column->column_type = TEXT;
 			break;
