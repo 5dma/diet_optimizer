@@ -10,7 +10,7 @@
 #define DATABASE_OPERATIONS_DATABASE_H_
 
 gboolean open_database(Data_Passer *data_passer);
-void do_sqlite_tests(const gchar *csv_value, Column_Definition *table_column);
+void do_sqlite_tests(const gchar *csv_value, gpointer user_data);
 
 gboolean is_integer(const gchar *token);
 gboolean is_real(const gchar *token);

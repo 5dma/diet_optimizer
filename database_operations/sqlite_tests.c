@@ -19,7 +19,8 @@
  * @param field_analysis The column's current Field_analysis_sqlite.
  * @param data_passer Pointer to the data-passer structure.
  *  */
-void do_sqlite_tests(const gchar *csv_value, Column_Definition *table_column) {
+void do_sqlite_tests(const gchar *csv_value, gpointer user_data) {
+	Column_Definition *table_column = (Column_Definition *)user_data;
 	gboolean passes_test = FALSE;
 	switch (table_column->column_type) {
 		case TRASH: /* TRASH is a field's initial data type, basically uninitialized. */

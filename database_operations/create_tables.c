@@ -15,6 +15,7 @@ gchar* make_csv_filename(const gchar *directory, const gchar *csv_file) {
 	return csv_filename;
 }
 
+
 void make_table(gpointer filename, gpointer user_data) {
 	Data_Passer *data_passer = (Data_Passer*) user_data;
 
@@ -41,25 +42,25 @@ void make_table(gpointer filename, gpointer user_data) {
 		return;
 	}
 	guint number_columns = 0;
-	Column_Definition table_columns[10];
-	gint current_column = 0;
+	GSList *table_columns = NULL;
 	gchar *match = NULL;
 	/* Parse the column names appearing in the first row */
 	do {
 		match = g_match_info_fetch(match_info, 1); // Fetch the first capturing group
 		if (match) {
 			g_print("Found match: %s\n", match);
-			Column_Definition column_definition;
-			g_strlcpy(column_definition.column_name, match,	MAX_COLUMN_NAME_LENGTH);
-			column_definition.column_type = NULL_S;
-			table_columns[current_column] = column_definition;
-			current_column++;
+			Column_Definition *column_definition = g_malloc(sizeof(Column_Definition));
+			g_strlcpy(column_definition->column_name, match, MAX_COLUMN_NAME_LENGTH);
+			column_definition->column_type = NULL_S;
+			table_columns = g_slist_append(table_columns, column_definition);
+			number_columns++;
 			g_free(match);
 		}
 
 	} while (g_match_info_next(match_info, &(data_passer->error)));
 
 	/* Read the second to last line, deciphering the SQLlite data type. */
+	guint current_column;
 	while (fgets(line, sizeof(line), file) != NULL) {
 		g_print("%s\n", line);
 
@@ -74,8 +75,7 @@ void make_table(gpointer filename, gpointer user_data) {
 		current_column = 0;
 		do {
 			match = g_match_info_fetch(match_info, 1);
-			gint breakpoint = g_ascii_strcasecmp (match, "2201897");
-			do_sqlite_tests(match, &(table_columns[current_column]));
+			do_sqlite_tests(match, g_slist_nth_data (table_columns, current_column));
 			g_free(match);
 			current_column++;
 		} while (g_match_info_next(match_info, &(data_passer->error)));
@@ -84,6 +84,9 @@ void make_table(gpointer filename, gpointer user_data) {
 	fclose(file);
 	g_match_info_free(match_info);
 	g_free(csv_filename);
+	g_slist_free (table_columns);
+	g_print("CREATE TABLE %s\n", (gchar*) filename);
+	exit(1);
 }
 
 /*
