@@ -15,6 +15,15 @@ gchar* make_csv_filename(const gchar *directory, const gchar *csv_file) {
 	return csv_filename;
 }
 
+void free_column_info(gpointer data) {
+	g_free((Column_Definition *) data );
+}
+
+/*
+gchar *make_table_name(const gchar *csv_file) {
+
+}
+*/
 
 void make_table(gpointer filename, gpointer user_data) {
 	Data_Passer *data_passer = (Data_Passer*) user_data;
@@ -26,6 +35,7 @@ void make_table(gpointer filename, gpointer user_data) {
 	FILE *file = fopen(csv_filename, "r");
 	if (!file) {
 		g_print("Error opening csv file %s\n", (gchar*) csv_filename);
+		g_free(csv_filename);
 		return;
 	}
 	gchar line[MAX_CSV_FILE_LINE_LENGTH];
@@ -36,11 +46,12 @@ void make_table(gpointer filename, gpointer user_data) {
 
 	g_regex_match(data_passer->csv_column_name_regex, line, 0, &match_info);
 	if (data_passer->error) {
-		g_printerr("Error matching regex: %s\n", data_passer->error->message);
+		g_print("Error matching regex: %s\n", data_passer->error->message);
 		g_error_free(data_passer->error);
 		data_passer->error = NULL;
 		return;
 	}
+
 	guint number_columns = 0;
 	GSList *table_columns = NULL;
 	gchar *match = NULL;
@@ -48,7 +59,7 @@ void make_table(gpointer filename, gpointer user_data) {
 	do {
 		match = g_match_info_fetch(match_info, 1); // Fetch the first capturing group
 		if (match) {
-			g_print("Found match: %s\n", match);
+			//g_print("Found match: %s\n", match);
 			Column_Definition *column_definition = g_malloc(sizeof(Column_Definition));
 			g_strlcpy(column_definition->column_name, match, MAX_COLUMN_NAME_LENGTH);
 			column_definition->column_type = NULL_S;
@@ -58,20 +69,21 @@ void make_table(gpointer filename, gpointer user_data) {
 		}
 
 	} while (g_match_info_next(match_info, &(data_passer->error)));
-
+	g_match_info_free(match_info);
 	/* Read the second to last line, deciphering the SQLlite data type. */
-	guint current_column;
+		guint current_column;
 	while (fgets(line, sizeof(line), file) != NULL) {
-		g_print("%s\n", line);
+		//g_print("%s\n", line);
 
 		g_regex_match(data_passer->csv_column_name_regex, line, 0, &match_info);
 		if (data_passer->error) {
-			g_printerr("Error matching regex: %s\n",
+			g_print("Error matching regex: %s\n",
 					data_passer->error->message);
 			g_error_free(data_passer->error);
 			data_passer->error = NULL;
 			return;
 		}
+
 		current_column = 0;
 		do {
 			match = g_match_info_fetch(match_info, 1);
@@ -79,14 +91,14 @@ void make_table(gpointer filename, gpointer user_data) {
 			g_free(match);
 			current_column++;
 		} while (g_match_info_next(match_info, &(data_passer->error)));
-
+		g_match_info_free(match_info);
 	}
-	fclose(file);
-	g_match_info_free(match_info);
-	g_free(csv_filename);
-	g_slist_free (table_columns);
+
 	g_print("CREATE TABLE %s\n", (gchar*) filename);
-	exit(1);
+	g_slist_free_full (table_columns, free_column_info);
+	fclose(file);
+	g_free(csv_filename);
+
 }
 
 /*
