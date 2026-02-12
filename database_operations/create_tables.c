@@ -19,11 +19,49 @@ void free_column_info(gpointer data) {
 	g_free((Column_Definition *) data );
 }
 
-/*
-gchar *make_table_name(const gchar *csv_file) {
+void make_clause(gpointer data, gpointer user_data) {
+	Column_Definition *column_definition =  (Column_Definition *) data;
+	gchar **command_pointer = (gchar **)user_data;
+	//gchar *command_pointer = *step1;
+	*command_pointer = g_stpcpy (*command_pointer, column_definition->column_name);
+	*command_pointer = g_stpcpy (*command_pointer, " ");
+	switch (column_definition->column_type) {
+	case NULL_S:
+		*command_pointer = g_stpcpy (*command_pointer, "NULL, ");
+		break;
+	case INTEGER:
+		*command_pointer = g_stpcpy (*command_pointer, "INTEGER, ");
+		break;
+	case REAL:
+		*command_pointer = g_stpcpy (*command_pointer, "REAL, ");
+		break;
+	case TEXT:
+		*command_pointer = g_stpcpy (*command_pointer, "TEXT, ");
+		break;
+	default:
 
+	}
+	g_print("Field name %s\n", column_definition->column_name );
 }
-*/
+/*
+ * CREATE TABLE barf (id INTEGER, desc TEXT, gag REAL, omg FLOAT);
+ */
+gchar *make_create_command(const gchar *csv_file, GSList *table_columns) {
+	gchar *create_command = g_malloc(sizeof(gchar) *MAX_SQLITE_LENGTH);
+	gchar *command_pointer = g_stpcpy (create_command, "CREATE TABLE ");
+	command_pointer = g_stpcpy (command_pointer, csv_file);
+	command_pointer = g_strrstr (create_command, ".csv");
+	command_pointer = g_stpcpy (command_pointer, " (");
+
+	g_slist_foreach(table_columns, make_clause, &command_pointer);
+	command_pointer = g_stpcpy (command_pointer, ")");
+	/* Remove trailing comma */
+	command_pointer = g_strrstr (create_command, ", )");
+	command_pointer = g_stpcpy (command_pointer, ")");
+	g_print("%s\n",create_command);
+	return create_command;
+}
+
 
 void make_table(gpointer filename, gpointer user_data) {
 	Data_Passer *data_passer = (Data_Passer*) user_data;
@@ -95,6 +133,8 @@ void make_table(gpointer filename, gpointer user_data) {
 	}
 
 	g_print("CREATE TABLE %s\n", (gchar*) filename);
+	gchar *create_command = make_create_command(filename,table_columns);
+	g_free(create_command);
 	g_slist_free_full (table_columns, free_column_info);
 	fclose(file);
 	g_free(csv_filename);
