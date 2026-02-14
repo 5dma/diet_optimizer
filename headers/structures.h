@@ -15,6 +15,13 @@ typedef struct Run_Time {
 	GSList *csv_files;
 } Run_Time;
 
+typedef struct Table_Characteristic {
+	gchar *table_name;
+	gchar *primary_key;
+} Table_Characteristic;
+
+
+
 typedef struct Data_Passer {
 	gchar *data_directory;
 	gchar *database_filename;
@@ -22,6 +29,7 @@ typedef struct Data_Passer {
 	gchar *csv_file_directory;
 	GRegex *csv_column_name_regex;
 	GError *error;
+	GSList *table_characteristics;
 	Run_Time run_time;
 } Data_Passer;
 

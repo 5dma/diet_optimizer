@@ -11,7 +11,7 @@
 
 /** Path to configuration file */
 #define CONFIG_FILE "/home/abba/.diet_optimizer/diet_optimizer.json"
-#define MAX_CSV_FILE_LINE_LENGTH 2048
+#define MAX_CSV_FILE_LINE_LENGTH 4096
 #define MAX_FILE_NAME_LENGTH 256
 #define MAX_COLUMN_NAME_LENGTH 255
 #define MAX_SQLITE_LENGTH 4096

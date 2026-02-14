@@ -4,7 +4,6 @@
 #include "../headers/headers.h"
 
 
-
 gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 
 	int rc = sqlite3_open(database_file, &(data_passer->run_time.db));

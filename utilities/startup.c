@@ -8,6 +8,8 @@
  *      Author: abba
  */
 
+
+
 void read_configuration_data(Data_Passer *data_passer) {
 	JsonParser *parser;
 	GError *error = NULL;
@@ -36,20 +38,23 @@ void read_configuration_data(Data_Passer *data_passer) {
 
 	/* Read the data information. */
 
-	JsonObject *database_object = json_object_get_object_member(root_object,
+	JsonObject *data = json_object_get_object_member(root_object,
 			"data");
 
 	data_passer->data_directory = g_strdup(
-			json_object_get_string_member(database_object, "data_directory"));
+			json_object_get_string_member(data, "data_directory"));
 	data_passer->database_filename = g_strdup(
-			json_object_get_string_member(database_object,
+			json_object_get_string_member(data,
 					"database_filename"));
 	data_passer->log_filename = g_strdup(
-			json_object_get_string_member(database_object, "log_filename"));
+			json_object_get_string_member(data, "log_filename"));
 	data_passer->csv_file_directory = g_strdup(
-			json_object_get_string_member(database_object,
+			json_object_get_string_member(data,
 					"csv_file_directory"));
 	data_passer->run_time.log_file = NULL;
+
+
+	get_table_characteristics(data, data_passer);
 
 	g_object_unref(parser);
 
@@ -76,6 +81,7 @@ Data_Passer* startup() {
 	data_passer->run_time.csv_files = NULL;
 	data_passer->error = NULL;
 	data_passer->csv_column_name_regex = NULL;
+	data_passer->table_characteristics = NULL;
 
 
 	read_configuration_data(data_passer);

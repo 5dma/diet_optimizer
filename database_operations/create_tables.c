@@ -16,53 +16,68 @@ gchar* make_csv_filename(const gchar *directory, const gchar *csv_file) {
 }
 
 void free_column_info(gpointer data) {
-	g_free((Column_Definition *) data );
+	g_free((Column_Definition*) data);
+}
+
+void populate_table() {
+//	INSERT INTO nutrient VALUES (2047,"Energy (Atwater General Factors)","KCAL",957,280.0);
+//	"id","name","unit_name","nutrient_nbr","rank"
+//	"2047","Energy (Atwater General Factors)","KCAL","957","280.0"
 }
 
 void make_clause(gpointer data, gpointer user_data) {
-	Column_Definition *column_definition =  (Column_Definition *) data;
-	gchar **command_pointer = (gchar **)user_data;
+	Column_Definition *column_definition = (Column_Definition*) data;
+	gchar **command_pointer = (gchar**) user_data;
 	//gchar *command_pointer = *step1;
-	*command_pointer = g_stpcpy (*command_pointer, column_definition->column_name);
-	*command_pointer = g_stpcpy (*command_pointer, " ");
+	*command_pointer = g_stpcpy(*command_pointer,
+			column_definition->column_name);
+	*command_pointer = g_stpcpy(*command_pointer, " ");
 	switch (column_definition->column_type) {
 	case NULL_S:
-		*command_pointer = g_stpcpy (*command_pointer, "NULL, ");
+		*command_pointer = g_stpcpy(*command_pointer, "NULL, ");
 		break;
 	case INTEGER:
-		*command_pointer = g_stpcpy (*command_pointer, "INTEGER, ");
+		*command_pointer = g_stpcpy(*command_pointer, "INTEGER, ");
 		break;
 	case REAL:
-		*command_pointer = g_stpcpy (*command_pointer, "REAL, ");
+		*command_pointer = g_stpcpy(*command_pointer, "REAL, ");
 		break;
 	case TEXT:
-		*command_pointer = g_stpcpy (*command_pointer, "TEXT, ");
+		*command_pointer = g_stpcpy(*command_pointer, "TEXT, ");
 		break;
 	default:
 
 	}
-	g_print("Field name %s\n", column_definition->column_name );
+	//g_print("Field name %s\n", column_definition->column_name );
 }
 /*
  * CREATE TABLE barf (id INTEGER, desc TEXT, gag REAL, omg FLOAT);
  */
-gchar *make_create_command(const gchar *csv_file, GSList *table_columns) {
-	gchar *create_command = g_malloc(sizeof(gchar) *MAX_SQLITE_LENGTH);
-	gchar *command_pointer = g_stpcpy (create_command, "CREATE TABLE ");
-	command_pointer = g_stpcpy (command_pointer, csv_file);
-	command_pointer = g_strrstr (create_command, ".csv");
-	command_pointer = g_stpcpy (command_pointer, " (");
+gchar* make_create_command(const gchar *csv_file, GSList *table_columns) {
+	gchar *create_command = g_malloc(sizeof(gchar) * MAX_SQLITE_LENGTH);
+	gchar *command_pointer = g_stpcpy(create_command, "CREATE TABLE ");
+	command_pointer = g_stpcpy(command_pointer, csv_file);
+	command_pointer = g_strrstr(create_command, ".csv");
+	command_pointer = g_stpcpy(command_pointer, " (");
 
 	g_slist_foreach(table_columns, make_clause, &command_pointer);
-	command_pointer = g_stpcpy (command_pointer, ")");
+	command_pointer = g_stpcpy(command_pointer, ")");
 	/* Remove trailing comma */
-	command_pointer = g_strrstr (create_command, ", )");
-	command_pointer = g_stpcpy (command_pointer, ")");
-	g_print("%s\n",create_command);
+	command_pointer = g_strrstr(create_command, ", )");
+	command_pointer = g_stpcpy(command_pointer, ")");
+	//g_print("%s\n",create_command);
 	return create_command;
 }
-
-
+void execute_create_table_command(const gchar *create_command, Data_Passer *data_passer) {
+	gchar *errmsg = NULL;
+	int rc = sqlite3_exec(data_passer->run_time.db, create_command, 0, 0, &errmsg);
+	if (rc != SQLITE_OK) {
+		g_print("SQL error: %s\n", errmsg);
+		sqlite3_free(errmsg); // Free the error message if needed
+	} else {
+		g_print("Table created successfully\n");
+	}
+}
 void make_table(gpointer filename, gpointer user_data) {
 	Data_Passer *data_passer = (Data_Passer*) user_data;
 
@@ -98,8 +113,10 @@ void make_table(gpointer filename, gpointer user_data) {
 		match = g_match_info_fetch(match_info, 1); // Fetch the first capturing group
 		if (match) {
 			//g_print("Found match: %s\n", match);
-			Column_Definition *column_definition = g_malloc(sizeof(Column_Definition));
-			g_strlcpy(column_definition->column_name, match, MAX_COLUMN_NAME_LENGTH);
+			Column_Definition *column_definition = g_malloc(
+					sizeof(Column_Definition));
+			g_strlcpy(column_definition->column_name, match,
+					MAX_COLUMN_NAME_LENGTH);
 			column_definition->column_type = NULL_S;
 			table_columns = g_slist_append(table_columns, column_definition);
 			number_columns++;
@@ -109,14 +126,13 @@ void make_table(gpointer filename, gpointer user_data) {
 	} while (g_match_info_next(match_info, &(data_passer->error)));
 	g_match_info_free(match_info);
 	/* Read the second to last line, deciphering the SQLlite data type. */
-		guint current_column;
+	guint current_column;
 	while (fgets(line, sizeof(line), file) != NULL) {
 		//g_print("%s\n", line);
 
 		g_regex_match(data_passer->csv_column_name_regex, line, 0, &match_info);
 		if (data_passer->error) {
-			g_print("Error matching regex: %s\n",
-					data_passer->error->message);
+			g_print("Error matching regex: %s\n", data_passer->error->message);
 			g_error_free(data_passer->error);
 			data_passer->error = NULL;
 			return;
@@ -125,33 +141,23 @@ void make_table(gpointer filename, gpointer user_data) {
 		current_column = 0;
 		do {
 			match = g_match_info_fetch(match_info, 1);
-			do_sqlite_tests(match, g_slist_nth_data (table_columns, current_column));
+			//g_print("Found match: %s\n", match);
+			do_sqlite_tests(match,
+					g_slist_nth_data(table_columns, current_column));
 			g_free(match);
 			current_column++;
 		} while (g_match_info_next(match_info, &(data_passer->error)));
 		g_match_info_free(match_info);
 	}
 
-	g_print("CREATE TABLE %s\n", (gchar*) filename);
-	gchar *create_command = make_create_command(filename,table_columns);
+
+	gchar *create_command = make_create_command(filename, table_columns);
+	g_print("%s\n", create_command);
+	execute_create_table_command(create_command, data_passer);
 	g_free(create_command);
-	g_slist_free_full (table_columns, free_column_info);
+	g_slist_free_full(table_columns, free_column_info);
 	fclose(file);
 	g_free(csv_filename);
-
 }
 
-/*
- gchar *csv_filename = make_csv_filename(data_passer->csv_file_directory, csv_file);
- fopen
- read first line
- parse field names
- read remaining lines, deduce field type (NULL, Integer, Real, text)
- build table name (from .csv string)
- Build create table statement
- Execute create table statement
-
-
- g_free(csv_filename);
- return TRUE;*/
 

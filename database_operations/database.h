@@ -4,6 +4,7 @@
  *  Created on: Feb 5, 2026
  *      Author: abba
  */
+#include <json-glib/json-glib.h>
 #include "../headers/headers.h"
 
 #ifndef DATABASE_OPERATIONS_DATABASE_H_
@@ -15,5 +16,6 @@ void do_sqlite_tests(const gchar *csv_value, gpointer user_data);
 gboolean is_integer(const gchar *token);
 gboolean is_real(const gchar *token);
 gboolean is_null(const gchar *token);
+void get_table_characteristics(JsonObject *data_object, Data_Passer *data_passer);
 
 #endif /* DATABASE_OPERATIONS_DATABASE_H_ */
