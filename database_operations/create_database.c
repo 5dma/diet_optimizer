@@ -13,7 +13,10 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 				data_passer->run_time.log_file);
 		return FALSE;
 	}
-	get_csv_files(data_passer);
+
+	g_slist_foreach(data_passer->table_characteristics, get_csv_files, data_passer);
+
+	//get_csv_files(data_passer);
 	if (data_passer->run_time.csv_files == NULL) {
 		write_log_message(G_LOG_LEVEL_CRITICAL,
 				"Could not find the list of CSV files, exiting.",

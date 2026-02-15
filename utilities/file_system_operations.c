@@ -16,28 +16,13 @@ gboolean exists_data_directory(Data_Passer *data_passer) {
 	}
 }
 
-void get_csv_files(Data_Passer *data_passer) {
+void get_csv_files( gpointer data,  gpointer user_data) {
+	Data_Passer *data_passer = (Data_Passer *) user_data;
+	Table_Characteristic *table_characteristic = (Table_Characteristic *) data;
 
-	GError *error = NULL;
-	GDir *dir= NULL;
-	dir = g_dir_open (data_passer->csv_file_directory, 0, &error);
-	if (dir == NULL) {
-		write_log_message(G_LOG_LEVEL_ERROR, error->message, data_passer->run_time.log_file);
-		g_error_free(error);
-		return;
-	}
-
-	const gchar *filename = g_dir_read_name (dir);
-	while (filename != NULL) {
-		if g_str_has_suffix(filename, ".csv") {
-				if (!g_str_has_suffix (filename, "all_downloaded_table_record_counts.csv") &&
-						!g_str_has_suffix (filename, "sample_food.csv")) {
-						gchar *filename_not_constant = g_strdup (filename);
-					data_passer->run_time.csv_files = g_slist_append (data_passer->run_time.csv_files, filename_not_constant);
-				}
-		}
-		filename = g_dir_read_name (dir);
-	}
-	g_dir_close(dir);
-
+	gchar *filename = g_malloc(MAX_FILE_NAME_LENGTH);
+	gchar *pointer = g_stpcpy (filename, data_passer->csv_file_directory);
+	pointer = g_stpcpy (filename, table_characteristic->table_name);
+	pointer = g_stpcpy (pointer,".csv");
+	data_passer->run_time.csv_files = g_slist_append (data_passer->run_time.csv_files, filename);
 }
