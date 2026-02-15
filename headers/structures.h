@@ -47,4 +47,5 @@ enum sqlite_data_type {
 typedef struct Column_Definition {
 	gchar column_name[MAX_COLUMN_NAME_LENGTH];
 	enum sqlite_data_type column_type;
+	gboolean is_primary_key;
 } Column_Definition;

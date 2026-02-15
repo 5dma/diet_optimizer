@@ -53,14 +53,15 @@ void make_clause(gpointer data, gpointer user_data) {
 /*
  * CREATE TABLE barf (id INTEGER, desc TEXT, gag REAL, omg FLOAT);
  */
-gchar* make_create_command(const gchar *csv_file, GSList *table_columns) {
+gchar* make_create_command(const gchar *csv_file, Data_Passer *data_passer) {
 	gchar *create_command = g_malloc(sizeof(gchar) * MAX_SQLITE_LENGTH);
 	gchar *command_pointer = g_stpcpy(create_command, "CREATE TABLE ");
 	command_pointer = g_stpcpy(command_pointer, csv_file);
 	command_pointer = g_strrstr(create_command, ".csv");
 	command_pointer = g_stpcpy(command_pointer, " (");
 
-	g_slist_foreach(table_columns, make_clause, &command_pointer);
+	g_slist_foreach(data_passer->table_characteristics, make_clause,
+			&command_pointer);
 	command_pointer = g_stpcpy(command_pointer, ")");
 	/* Remove trailing comma */
 	command_pointer = g_strrstr(create_command, ", )");
@@ -68,9 +69,11 @@ gchar* make_create_command(const gchar *csv_file, GSList *table_columns) {
 	//g_print("%s\n",create_command);
 	return create_command;
 }
-void execute_create_table_command(const gchar *create_command, Data_Passer *data_passer) {
+void execute_create_table_command(const gchar *create_command,
+		Data_Passer *data_passer) {
 	gchar *errmsg = NULL;
-	int rc = sqlite3_exec(data_passer->run_time.db, create_command, 0, 0, &errmsg);
+	int rc = sqlite3_exec(data_passer->run_time.db, create_command, 0, 0,
+			&errmsg);
 	if (rc != SQLITE_OK) {
 		g_print("SQL error: %s\n", errmsg);
 		sqlite3_free(errmsg); // Free the error message if needed
@@ -80,15 +83,16 @@ void execute_create_table_command(const gchar *create_command, Data_Passer *data
 }
 void make_table(gpointer filename, gpointer user_data) {
 	Data_Passer *data_passer = (Data_Passer*) user_data;
+	gchar *csv_filename = (gchar*) filename;
 
-	gchar *csv_filename = make_csv_filename(data_passer->csv_file_directory,
-			(gchar*) filename);
-	g_print("Processing %s\n", (gchar*) csv_filename);
+	gchar *csv_pathname= make_csv_filename(data_passer->csv_file_directory,
+			csv_filename);
+	g_print("Processing %s\n", (gchar*) csv_pathname);
 
-	FILE *file = fopen(csv_filename, "r");
+	FILE *file = fopen(csv_pathname, "r");
 	if (!file) {
-		g_print("Error opening csv file %s\n", (gchar*) csv_filename);
-		g_free(csv_filename);
+		g_print("Error opening csv file %s\n", (gchar*) csv_pathname);
+		g_free(csv_pathname);
 		return;
 	}
 	gchar line[MAX_CSV_FILE_LINE_LENGTH];
@@ -108,6 +112,7 @@ void make_table(gpointer filename, gpointer user_data) {
 	guint number_columns = 0;
 	GSList *table_columns = NULL;
 	gchar *match = NULL;
+	gchar table_name[MAX_COLUMN_NAME_LENGTH];
 	/* Parse the column names appearing in the first row */
 	do {
 		match = g_match_info_fetch(match_info, 1); // Fetch the first capturing group
@@ -116,8 +121,22 @@ void make_table(gpointer filename, gpointer user_data) {
 			Column_Definition *column_definition = g_malloc(
 					sizeof(Column_Definition));
 			g_strlcpy(column_definition->column_name, match,
-					MAX_COLUMN_NAME_LENGTH);
+			MAX_COLUMN_NAME_LENGTH);
 			column_definition->column_type = NULL_S;
+			column_definition->is_primary_key = FALSE;
+
+			get_table_name_from_csv_name(table_name, csv_filename);
+			GSList *table_list = g_slist_find_custom(
+					data_passer->table_characteristics, table_name,
+					find_table_definition);
+			if (table_list) {
+				Table_Characteristic *table_characteristic =
+						(Table_Characteristic*) table_list->data;
+				if (strcmp(table_characteristic->primary_key, column_definition->column_name) == 0) {
+					column_definition->is_primary_key = TRUE;
+				}
+			}
+
 			table_columns = g_slist_append(table_columns, column_definition);
 			number_columns++;
 			g_free(match);
@@ -150,8 +169,7 @@ void make_table(gpointer filename, gpointer user_data) {
 		g_match_info_free(match_info);
 	}
 
-
-	gchar *create_command = make_create_command(filename, table_columns);
+	gchar *create_command = make_create_command(filename, data_passer);
 	g_print("%s\n", create_command);
 	execute_create_table_command(create_command, data_passer);
 	g_free(create_command);
@@ -159,5 +177,4 @@ void make_table(gpointer filename, gpointer user_data) {
 	fclose(file);
 	g_free(csv_filename);
 }
-
 

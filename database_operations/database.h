@@ -17,5 +17,7 @@ gboolean is_integer(const gchar *token);
 gboolean is_real(const gchar *token);
 gboolean is_null(const gchar *token);
 void get_table_characteristics(JsonObject *data_object, Data_Passer *data_passer);
+void get_table_name_from_csv_name(gchar table_name[], const gchar *csv_name);
+gboolean find_table_definition(gconstpointer data, gconstpointer user_data);
 
 #endif /* DATABASE_OPERATIONS_DATABASE_H_ */
