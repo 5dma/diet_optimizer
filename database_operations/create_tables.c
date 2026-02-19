@@ -9,10 +9,7 @@
 #include <string.h>
 
 gchar* make_csv_filename(const gchar *directory, const gchar *csv_file) {
-	gchar *csv_filename = g_malloc(256 * sizeof(gchar));
-	gchar *pointer = g_stpcpy(csv_filename, directory);
-	pointer = g_stpcpy(pointer, csv_file);
-	return csv_filename;
+	return g_strconcat (directory, csv_file, NULL);
 }
 
 void free_column_info(gpointer data) {
@@ -27,6 +24,7 @@ void populate_table() {
 
 void make_clause(gpointer data, gpointer user_data) {
 	Column_Definition *column_definition = (Column_Definition*) data;
+	//g_print("Field name %s\n", column_definition->column_name );
 	gchar **command_pointer = (gchar**) user_data;
 	//gchar *command_pointer = *step1;
 	*command_pointer = g_stpcpy(*command_pointer,
@@ -48,19 +46,18 @@ void make_clause(gpointer data, gpointer user_data) {
 	default:
 
 	}
-	//g_print("Field name %s\n", column_definition->column_name );
+
 }
 /*
  * CREATE TABLE barf (id INTEGER, desc TEXT, gag REAL, omg FLOAT);
  */
-gchar* make_create_command(const gchar *csv_file, Data_Passer *data_passer) {
+gchar* make_create_command(const gchar *table_name, GSList *table_columns, Data_Passer *data_passer) {
 	gchar *create_command = g_malloc(sizeof(gchar) * MAX_SQLITE_LENGTH);
 	gchar *command_pointer = g_stpcpy(create_command, "CREATE TABLE ");
-	command_pointer = g_stpcpy(command_pointer, csv_file);
-	command_pointer = g_strrstr(create_command, ".csv");
+	command_pointer = g_stpcpy(command_pointer, table_name);
 	command_pointer = g_stpcpy(command_pointer, " (");
 
-	g_slist_foreach(data_passer->table_characteristics, make_clause,
+	g_slist_foreach(table_columns, make_clause,
 			&command_pointer);
 	command_pointer = g_stpcpy(command_pointer, ")");
 	/* Remove trailing comma */
@@ -81,6 +78,8 @@ void execute_create_table_command(const gchar *create_command,
 		g_print("Table created successfully\n");
 	}
 }
+
+
 void make_table(gpointer filename, gpointer user_data) {
 	Data_Passer *data_passer = (Data_Passer*) user_data;
 	gchar *csv_filename = (gchar*) filename;
@@ -122,7 +121,7 @@ void make_table(gpointer filename, gpointer user_data) {
 					sizeof(Column_Definition));
 			g_strlcpy(column_definition->column_name, match,
 			MAX_COLUMN_NAME_LENGTH);
-			column_definition->column_type = NULL_S;
+			column_definition->column_type = TRASH;
 			column_definition->is_primary_key = FALSE;
 
 			get_table_name_from_csv_name(table_name, csv_filename);
@@ -143,6 +142,7 @@ void make_table(gpointer filename, gpointer user_data) {
 		}
 
 	} while (g_match_info_next(match_info, &(data_passer->error)));
+
 	g_match_info_free(match_info);
 	/* Read the second to last line, deciphering the SQLlite data type. */
 	guint current_column;
@@ -169,12 +169,12 @@ void make_table(gpointer filename, gpointer user_data) {
 		g_match_info_free(match_info);
 	}
 
-	gchar *create_command = make_create_command(filename, data_passer);
+	gchar *create_command = make_create_command(table_name, table_columns, data_passer);
 	g_print("%s\n", create_command);
 	execute_create_table_command(create_command, data_passer);
 	g_free(create_command);
 	g_slist_free_full(table_columns, free_column_info);
 	fclose(file);
-	g_free(csv_filename);
+	g_free(csv_pathname);
 }
 
