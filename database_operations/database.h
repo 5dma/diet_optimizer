@@ -20,4 +20,6 @@ void get_table_characteristics(JsonObject *data_object, Data_Passer *data_passer
 void get_table_name_from_csv_name(gchar table_name[], const gchar *csv_name);
 gboolean find_table_definition(gconstpointer data, gconstpointer user_data);
 
+void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[], Data_Passer *data_passer);
+
 #endif /* DATABASE_OPERATIONS_DATABASE_H_ */

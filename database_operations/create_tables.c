@@ -16,12 +16,6 @@ void free_column_info(gpointer data) {
 	g_free((Column_Definition*) data);
 }
 
-void populate_table() {
-//	INSERT INTO nutrient VALUES (2047,"Energy (Atwater General Factors)","KCAL",957,280.0);
-//	"id","name","unit_name","nutrient_nbr","rank"
-//	"2047","Energy (Atwater General Factors)","KCAL","957","280.0"
-}
-
 void make_clause(gpointer data, gpointer user_data) {
 	Column_Definition *column_definition = (Column_Definition*) data;
 	//g_print("Field name %s\n", column_definition->column_name );
@@ -99,7 +93,8 @@ void make_table(gpointer filename, gpointer user_data) {
 	}
 	gchar line[MAX_CSV_FILE_LINE_LENGTH];
 	fgets(line, sizeof(line), file);
-
+	/* Save the start of the CSV data, use it when populating the table. */
+	guint csv_start = strlen(line);
 	GMatchInfo *match_info = NULL;
 	data_passer->error = NULL;
 
@@ -147,7 +142,7 @@ void make_table(gpointer filename, gpointer user_data) {
 	} while (g_match_info_next(match_info, &(data_passer->error)));
 
 	g_match_info_free(match_info);
-	/* Read the second to last line, deciphering the SQLlite data type. */
+	/* Read from the second to last line, deciphering the SQLlite data type. */
 	guint current_column;
 	while (fgets(line, sizeof(line), file) != NULL) {
 		//g_print("%s\n", line);
@@ -177,6 +172,7 @@ void make_table(gpointer filename, gpointer user_data) {
 	execute_create_table_command(create_command, data_passer);
 	g_free(create_command);
 	g_slist_free_full(table_columns, free_column_info);
+	populate_table(file, csv_start, table_name, data_passer);
 	fclose(file);
 	g_free(csv_pathname);
 }

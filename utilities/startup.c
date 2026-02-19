@@ -81,6 +81,7 @@ Data_Passer* startup() {
 	data_passer->run_time.csv_files = NULL;
 	data_passer->error = NULL;
 	data_passer->csv_column_name_regex = NULL;
+	data_passer->csv_column_value_regex = NULL;
 	data_passer->table_characteristics = NULL;
 
 
