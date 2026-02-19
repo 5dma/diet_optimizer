@@ -32,21 +32,24 @@ void make_clause(gpointer data, gpointer user_data) {
 	*command_pointer = g_stpcpy(*command_pointer, " ");
 	switch (column_definition->column_type) {
 	case NULL_S:
-		*command_pointer = g_stpcpy(*command_pointer, "NULL, ");
+		*command_pointer = g_stpcpy(*command_pointer, "NULL");
 		break;
 	case INTEGER:
-		*command_pointer = g_stpcpy(*command_pointer, "INTEGER, ");
+		*command_pointer = g_stpcpy(*command_pointer, "INTEGER");
 		break;
 	case REAL:
-		*command_pointer = g_stpcpy(*command_pointer, "REAL, ");
+		*command_pointer = g_stpcpy(*command_pointer, "REAL");
 		break;
 	case TEXT:
-		*command_pointer = g_stpcpy(*command_pointer, "TEXT, ");
+		*command_pointer = g_stpcpy(*command_pointer, "TEXT");
 		break;
 	default:
 
 	}
-
+	if (column_definition->is_primary_key) {
+		*command_pointer = g_stpcpy(*command_pointer, " PRIMARY KEY");
+	}
+	*command_pointer = g_stpcpy(*command_pointer, ", ");
 }
 /*
  * CREATE TABLE barf (id INTEGER, desc TEXT, gag REAL, omg FLOAT);
