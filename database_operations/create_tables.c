@@ -79,12 +79,13 @@ gchar* make_create_command(const gchar *table_name, GSList *table_columns,
 	if (table_list) {
 		Table_Characteristic *table_characteristic =
 				(Table_Characteristic*) table_list->data;
-		if (table_characteristic->foreign_keys) {
-			g_slist_foreach(table_characteristic->foreign_keys,
-					make_foreign_keys, &command_pointer);
-			command_pointer = g_strrstr(create_command, ",");
-			*command_pointer = '\0';
-		}
+
+		command_pointer = g_strrstr(create_command, ",") + 1;
+		g_slist_foreach(table_characteristic->foreign_keys, make_foreign_keys,
+				&command_pointer);
+		command_pointer = g_strrstr(create_command, ",");
+		*command_pointer = '\0';
+
 	}
 
 	g_print("%s\n",create_command);

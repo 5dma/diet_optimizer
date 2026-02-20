@@ -19,5 +19,11 @@ void get_table_name_from_csv_name(gchar table_name[], const gchar *csv_name) {
 gboolean find_table_definition(gconstpointer data, gconstpointer user_data) {
 	Table_Characteristic *table_characteristic = (Table_Characteristic*) data;
 	gchar *table_name = (gchar*) user_data;
-	return strcmp(table_characteristic->table_name, table_name);
+	//gboolean barf = (table_characteristic->foreign_keys != NULL);
+	//gboolean barf;
+	if ((strcmp(table_characteristic->table_name, table_name) == 0)
+			&& (table_characteristic->foreign_keys != NULL)) {
+		return 0;
+	}
+	return 1;
 }
