@@ -15,9 +15,16 @@ typedef struct Run_Time {
 	GSList *csv_files;
 } Run_Time;
 
+typedef struct Foreign_Key {
+	gchar *local_column;
+	gchar *foreign_table;
+	gchar *foreign_column;
+} Foreign_Key;
+
 typedef struct Table_Characteristic {
 	gchar *table_name;
 	gchar *primary_key;
+	GSList *foreign_keys;
 } Table_Characteristic;
 
 

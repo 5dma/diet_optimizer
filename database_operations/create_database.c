@@ -14,6 +14,17 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 		return FALSE;
 	}
 
+	gchar *errmsg = NULL;
+	rc = sqlite3_exec(data_passer->run_time.db, "PRAGMA foreign_keys = ON", 0, 0,
+			&errmsg);
+	if (rc != SQLITE_OK) {
+		g_print("SQL error: %s\n", errmsg);
+		sqlite3_free(errmsg); // Free the error message if needed
+	} else {
+		g_print("Set the pragma successfully\n");
+	}
+
+
 	g_slist_foreach(data_passer->table_characteristics, get_csv_files, data_passer);
 
 	//get_csv_files(data_passer);
