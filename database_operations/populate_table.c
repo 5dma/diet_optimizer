@@ -12,7 +12,6 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[], D
 	gchar line[MAX_CSV_FILE_LINE_LENGTH];
 	GMatchInfo *match_info = NULL;
 	gchar *match = NULL;
-	data_passer->csv_column_value_regex = g_regex_new("(\"[^\"]*(?:\"\"[^\"]*)*\")", G_REGEX_DEFAULT, G_REGEX_MATCH_DEFAULT, &(data_passer->error));
 
 	gchar insert_statement[MAX_SQLITE_LENGTH];
 	gchar *command_pointer = g_stpcpy(insert_statement, "INSERT INTO ");
@@ -49,5 +48,5 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[], D
 				//g_print("Row inserted successfully\n");
 			}
 		}
-	g_regex_unref(data_passer->csv_column_value_regex);
+
 }
