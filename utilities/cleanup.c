@@ -2,10 +2,21 @@
 #include <stddef.h>
 
 
+void free_foreign_keys(gpointer data) {
+	Foreign_Key *foreign_key = (Foreign_Key *) data;
+	g_free(foreign_key->local_column);
+	g_free(foreign_key->foreign_column);
+	g_free(foreign_key->foreign_table);
+	g_free(foreign_key);
+}
+
 void free_table_characteristics(gpointer data) {
 	Table_Characteristic *table_characteristic = (Table_Characteristic *)data;
 	g_free(table_characteristic->table_name );
 	g_free(table_characteristic->primary_key);
+	if (table_characteristic->foreign_keys) {
+		g_slist_free_full (table_characteristic->foreign_keys, free_foreign_keys);
+	}
 	g_free(table_characteristic);
 }
 
