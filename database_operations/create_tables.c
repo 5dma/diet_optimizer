@@ -46,17 +46,6 @@ void make_clause(gpointer data, gpointer user_data) {
 	*command_pointer = g_stpcpy(*command_pointer, ", ");
 }
 
-void make_foreign_keys(gpointer data, gpointer user_data) {
-	gchar foreign_key_phrase[MAX_FOREIGN_KEY_PHRASE];
-	Foreign_Key *foreign_key = (Foreign_Key*) data;
-	gchar **command_pointer = (gchar**) user_data;
-	g_snprintf(foreign_key_phrase, MAX_FOREIGN_KEY_PHRASE,
-			" FOREIGN KEY (%s) REFERENCES %s(%s),", foreign_key->local_column,
-			foreign_key->foreign_table, foreign_key->foreign_column);
-	g_print("%s\n", foreign_key_phrase);
-	*command_pointer = g_stpcpy(*command_pointer, foreign_key_phrase);
-
-}
 /*
  * CREATE TABLE barf (id INTEGER, desc TEXT, gag REAL, omg FLOAT);
  */
@@ -68,13 +57,10 @@ gchar* make_create_command(const gchar *table_name, GSList *table_columns,
 	command_pointer = g_stpcpy(command_pointer, " (");
 
 	g_slist_foreach(table_columns, make_clause, &command_pointer);
-	command_pointer = g_stpcpy(command_pointer, ")");
-	/* Remove trailing comma */
-	command_pointer = g_strrstr(create_command, ", )");
-	command_pointer = g_stpcpy(command_pointer, ")");
 
+	/* Find the record containing the current table, check if it has foreign keys. */
 	GSList *table_list = g_slist_find_custom(data_passer->table_characteristics,
-			table_name, find_table_definition);
+			table_name, find_table_definition_with_foreign_key);
 
 	if (table_list) {
 		Table_Characteristic *table_characteristic =
@@ -82,13 +68,16 @@ gchar* make_create_command(const gchar *table_name, GSList *table_columns,
 
 		command_pointer = g_strrstr(create_command, ",") + 1;
 		g_slist_foreach(table_characteristic->foreign_keys, make_foreign_keys,
-				&command_pointer);
+				command_pointer);
 		command_pointer = g_strrstr(create_command, ",");
-		*command_pointer = '\0';
-
+		command_pointer = g_stpcpy(command_pointer, ")");
+	} else {
+		/* For tables without a foreign key, replace trailing comma-space with a closing paren */
+		command_pointer = g_strrstr(create_command, ", ");
+		command_pointer = g_stpcpy(command_pointer, ")");
 	}
 
-	g_print("%s\n",create_command);
+	g_print("%s\n", create_command);
 	return create_command;
 }
 void execute_create_table_command(const gchar *create_command,

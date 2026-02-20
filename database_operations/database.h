@@ -19,6 +19,8 @@ gboolean is_null(const gchar *token);
 void get_table_characteristics(JsonObject *data_object, Data_Passer *data_passer);
 void get_table_name_from_csv_name(gchar table_name[], const gchar *csv_name);
 gboolean find_table_definition(gconstpointer data, gconstpointer user_data);
+void make_foreign_keys(gpointer data, gpointer user_data);
+gboolean find_table_definition_with_foreign_key(gconstpointer data, gconstpointer user_data);
 
 void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[], Data_Passer *data_passer);
 
