@@ -46,9 +46,7 @@ void make_clause(gpointer data, gpointer user_data) {
 	*command_pointer = g_stpcpy(*command_pointer, ", ");
 }
 
-/*
- * CREATE TABLE barf (id INTEGER, desc TEXT, gag REAL, omg FLOAT);
- */
+
 gchar* make_create_command(const gchar *table_name, GSList *table_columns,
 		Data_Passer *data_passer) {
 	gchar *create_command = g_malloc(sizeof(gchar) * MAX_SQLITE_LENGTH);
@@ -68,7 +66,7 @@ gchar* make_create_command(const gchar *table_name, GSList *table_columns,
 
 		command_pointer = g_strrstr(create_command, ",") + 1;
 		g_slist_foreach(table_characteristic->foreign_keys, make_foreign_keys,
-				command_pointer);
+				&command_pointer);
 		command_pointer = g_strrstr(create_command, ",");
 		command_pointer = g_stpcpy(command_pointer, ")");
 	} else {

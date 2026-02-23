@@ -36,9 +36,9 @@ gboolean find_table_definition_with_foreign_key(gconstpointer data, gconstpointe
 void make_foreign_keys(gpointer data, gpointer user_data) {
 	gchar foreign_key_phrase[MAX_FOREIGN_KEY_PHRASE];
 	Foreign_Key *foreign_key = (Foreign_Key*) data;
-	gchar *command_pointer = (gchar*) user_data;
+	gchar **command_pointer = (gchar**) user_data;
 	g_snprintf(foreign_key_phrase, MAX_FOREIGN_KEY_PHRASE,
 			" FOREIGN KEY (%s) REFERENCES %s(%s),", foreign_key->local_column,
 			foreign_key->foreign_table, foreign_key->foreign_column);
-	command_pointer = g_stpcpy(command_pointer, foreign_key_phrase);
+	*command_pointer = g_stpcpy(*command_pointer, foreign_key_phrase);
 }
