@@ -36,7 +36,6 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 	}
 	// The regex pattern is "([^"]*(?:""[^"]*)*)"
 	data_passer->csv_column_name_regex = g_regex_new("\"([^\"]*(?:\"\"[^\"]*)*)\"", G_REGEX_DEFAULT, G_REGEX_MATCH_DEFAULT, &(data_passer->error));
-	data_passer->csv_column_value_regex = g_regex_new("(\"[^\"]*(?:\"\"[^\"]*)*\")", G_REGEX_DEFAULT, G_REGEX_MATCH_DEFAULT, &(data_passer->error));
 
 	 if (data_passer->csv_column_name_regex == NULL) {
 		 g_print("Error creating regex: %s, will not be able to create the database", data_passer->error->message);
@@ -45,7 +44,6 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 
 	g_slist_foreach(data_passer->run_time.csv_files, make_table, data_passer);
 	g_regex_unref(data_passer->csv_column_name_regex);
-	g_regex_unref(data_passer->csv_column_value_regex);
 	return TRUE;
 
 }
