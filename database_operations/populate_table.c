@@ -31,6 +31,9 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 		g_print("Could not prepare the insert statement\n");
 	}
 
+	sqlite3_exec(data_passer->run_time.db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+
+
 	while (fgets(line, sizeof(line), csv_file) != NULL) {
 		//g_print("%s\n", line);
 		g_regex_match(data_passer->csv_column_name_regex, line, 0,
@@ -97,5 +100,7 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 
 	}
 	sqlite3_finalize(stmt);
+	sqlite3_exec(data_passer->run_time.db, "COMMIT;", NULL, NULL, NULL);
+
 
 }
