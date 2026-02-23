@@ -38,6 +38,7 @@ typedef struct Data_Passer {
 	GRegex *csv_column_value_regex;
 	GError *error;
 	GSList *table_characteristics;
+	gchar sqlite_prepare_dummies[MAX_NUMBER_TABLE_COLUMNS / 2];
 	Run_Time run_time;
 } Data_Passer;
 

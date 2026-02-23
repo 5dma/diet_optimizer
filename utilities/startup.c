@@ -84,6 +84,7 @@ Data_Passer* startup() {
 	data_passer->csv_column_value_regex = NULL;
 	data_passer->table_characteristics = NULL;
 
+	g_strlcpy (data_passer->sqlite_prepare_dummies, "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,", MAX_NUMBER_TABLE_COLUMNS / 2);
 
 	read_configuration_data(data_passer);
 	return data_passer;

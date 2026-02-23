@@ -15,19 +15,18 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 	gchar line[MAX_CSV_FILE_LINE_LENGTH];
 	GMatchInfo *match_info = NULL;
 	gchar *match = NULL;
-	gchar dummy[] = "?,?,?,?,?,?,?,?,?,?,?,?,";
 	gchar insert_statement[MAX_SQLITE_LENGTH];
 	gchar *command_pointer = g_stpcpy(insert_statement, "INSERT INTO ");
 	command_pointer = g_stpcpy(command_pointer, table_name);
 	command_pointer = g_stpcpy(command_pointer, " VALUES (");
 	guint number_dummies = 2 * (number_columns - 1) + 1;
-	strncpy(command_pointer, dummy, number_dummies);
+	strncpy(command_pointer, data_passer->sqlite_prepare_dummies, number_dummies);
 	command_pointer += number_dummies;
 	command_pointer = g_stpcpy(command_pointer, ")");
 	sqlite3_stmt *stmt;
-	int barf = sqlite3_prepare_v2(data_passer->run_time.db, insert_statement,
+	int rc = sqlite3_prepare_v2(data_passer->run_time.db, insert_statement,
 			-1, &stmt, NULL);
-	if (barf != SQLITE_OK) {
+	if (rc != SQLITE_OK) {
 		g_print("Could not prepare the insert statement\n");
 	}
 
@@ -85,7 +84,7 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 			bind_index++;
 			g_free(match);
 		} while (g_match_info_next(match_info, &(data_passer->error)));
-		int rc = sqlite3_step(stmt);
+		rc = sqlite3_step(stmt);
 		if (rc != SQLITE_DONE) {
 			g_print("Execution failed: %s\n",
 					sqlite3_errmsg(data_passer->run_time.db));
