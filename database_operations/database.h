@@ -22,6 +22,7 @@ gboolean find_table_definition(gconstpointer data, gconstpointer user_data);
 void make_foreign_keys(gpointer data, gpointer user_data);
 gboolean find_table_definition_with_foreign_key(gconstpointer data, gconstpointer user_data);
 
-void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[], Data_Passer *data_passer);
+void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[], guint number_columns, GSList *table_columns, Data_Passer *data_passer);
+
 
 #endif /* DATABASE_OPERATIONS_DATABASE_H_ */

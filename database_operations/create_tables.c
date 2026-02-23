@@ -121,7 +121,6 @@ void make_table(gpointer filename, gpointer user_data) {
 		data_passer->error = NULL;
 		return;
 	}
-
 	guint number_columns = 0;
 	GSList *table_columns = NULL;
 	gchar *match = NULL;
@@ -154,6 +153,7 @@ void make_table(gpointer filename, gpointer user_data) {
 
 			table_columns = g_slist_append(table_columns, column_definition);
 			number_columns++;
+
 			g_free(match);
 		}
 
@@ -190,8 +190,8 @@ void make_table(gpointer filename, gpointer user_data) {
 	g_print("%s\n", create_command);
 	execute_create_table_command(create_command, data_passer);
 	g_free(create_command);
+	populate_table(file, csv_start, table_name, number_columns, table_columns, data_passer);
 	g_slist_free_full(table_columns, free_column_info);
-	populate_table(file, csv_start, table_name, data_passer);
 	fclose(file);
 	g_free(csv_pathname);
 }
