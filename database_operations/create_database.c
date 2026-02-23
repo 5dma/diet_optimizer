@@ -20,10 +20,7 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 	if (rc != SQLITE_OK) {
 		g_print("SQL error: %s\n", errmsg);
 		sqlite3_free(errmsg); // Free the error message if needed
-	} else {
-		g_print("Set the pragma successfully\n");
 	}
-
 
 	g_slist_foreach(data_passer->table_characteristics, get_csv_files, data_passer);
 

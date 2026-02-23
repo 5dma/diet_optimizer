@@ -77,19 +77,17 @@ gchar* make_create_command(const gchar *table_name, GSList *table_columns,
 		command_pointer = g_stpcpy(command_pointer, ")");
 	}
 
-	g_print("%s\n", create_command);
 	return create_command;
 }
 void execute_create_table_command(const gchar *create_command,
 		Data_Passer *data_passer) {
+	g_print("%s\n", create_command);
 	gchar *errmsg = NULL;
 	int rc = sqlite3_exec(data_passer->run_time.db, create_command, 0, 0,
 			&errmsg);
 	if (rc != SQLITE_OK) {
 		g_print("SQL error: %s\n", errmsg);
 		sqlite3_free(errmsg); // Free the error message if needed
-	} else {
-		g_print("Table created successfully\n");
 	}
 }
 
@@ -129,7 +127,8 @@ void make_table(gpointer filename, gpointer user_data) {
 	do {
 		match = g_match_info_fetch(match_info, 1); // Fetch the first capturing group
 		if (match) {
-			//g_print("Found match: %s\n", match);
+			g_print("Found a column with title: %s\n", match);
+			normalize_string(match);
 			Column_Definition *column_definition = g_malloc(
 					sizeof(Column_Definition));
 			g_strlcpy(column_definition->column_name, match,

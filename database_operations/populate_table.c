@@ -15,6 +15,8 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 	gchar line[MAX_CSV_FILE_LINE_LENGTH];
 	GMatchInfo *match_info = NULL;
 	gchar *match = NULL;
+
+	/* Construct the prepared insert statement. */
 	gchar insert_statement[MAX_SQLITE_LENGTH];
 	gchar *command_pointer = g_stpcpy(insert_statement, "INSERT INTO ");
 	command_pointer = g_stpcpy(command_pointer, table_name);
@@ -23,6 +25,7 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 	strncpy(command_pointer, data_passer->sqlite_prepare_dummies, number_dummies);
 	command_pointer += number_dummies;
 	command_pointer = g_stpcpy(command_pointer, ")");
+
 	sqlite3_stmt *stmt;
 	int rc = sqlite3_prepare_v2(data_passer->run_time.db, insert_statement,
 			-1, &stmt, NULL);
@@ -47,10 +50,11 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 		gint bind_return;
 		do {
 			match = g_match_info_fetch(match_info, 1);
-			//g_print("Found match: %s\n", match);
+
 			GSList *table_column = g_slist_nth(table_columns, bind_index - 1);
 			Column_Definition *column_definition =
 					(Column_Definition*) table_column->data;
+
 			switch (column_definition->column_type) {
 			case INTEGER:
 				bind_return = sqlite3_bind_int64(stmt, bind_index, atoi(match));
@@ -84,6 +88,7 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 			bind_index++;
 			g_free(match);
 		} while (g_match_info_next(match_info, &(data_passer->error)));
+
 		rc = sqlite3_step(stmt);
 		if (rc != SQLITE_DONE) {
 			g_print("Execution failed: %s\n",
