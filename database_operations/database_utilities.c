@@ -42,3 +42,15 @@ void make_foreign_keys(gpointer data, gpointer user_data) {
 			foreign_key->foreign_table, foreign_key->foreign_column);
 	*command_pointer = g_stpcpy(*command_pointer, foreign_key_phrase);
 }
+
+/* Toss this function? */
+gboolean is_table_exists (const char *table_name, const Data_Passer *data_passer) {
+
+    sqlite3_bind_text(data_passer->stmt_is_table_exists, 1, table_name, -1, SQLITE_STATIC);
+
+    if (sqlite3_step(data_passer->stmt_is_table_exists) == SQLITE_ROW) {
+        return (sqlite3_column_int(data_passer->stmt_is_table_exists, 0) == 1); // 1 if found, 0 if not
+    }
+
+    return FALSE;
+}

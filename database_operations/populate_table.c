@@ -31,6 +31,7 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 			-1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
 		g_print("Could not prepare the insert statement\n");
+		g_print("SQL Error (Code %d): %s\n", rc, sqlite3_errmsg(data_passer->run_time.db));
 	}
 
 	sqlite3_exec(data_passer->run_time.db, "BEGIN TRANSACTION;", NULL, NULL, NULL);

@@ -47,6 +47,9 @@ void cleanup(Data_Passer *data_passer) {
 	if (data_passer->table_characteristics) {
 		g_slist_free_full (data_passer->table_characteristics, free_table_characteristics);
 	}
+
+    sqlite3_finalize(data_passer->stmt_is_table_exists);
+
     g_free(data_passer);
 
 }

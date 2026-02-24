@@ -38,6 +38,9 @@ typedef struct Data_Passer {
 	GError *error;
 	GSList *table_characteristics;
 	gchar sqlite_prepare_dummies[MAX_NUMBER_TABLE_COLUMNS / 2];
+
+	/* Toss this member? */
+	sqlite3_stmt *stmt_is_table_exists;
 	Run_Time run_time;
 } Data_Passer;
 

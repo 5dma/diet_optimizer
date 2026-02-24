@@ -24,5 +24,6 @@ gboolean find_table_definition_with_foreign_key(gconstpointer data, gconstpointe
 
 void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[], guint number_columns, GSList *table_columns, Data_Passer *data_passer);
 
-
+/* Toss this function? */
+gboolean is_table_exists (const char *table_name, const Data_Passer *data_passer);
 #endif /* DATABASE_OPERATIONS_DATABASE_H_ */

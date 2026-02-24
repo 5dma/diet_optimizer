@@ -22,6 +22,10 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 		sqlite3_free(errmsg); // Free the error message if needed
 	}
 
+	if (sqlite3_prepare_v2(data_passer->run_time.db, "SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?", -1, &(data_passer->stmt_is_table_exists), NULL) != SQLITE_OK) {
+		g_print("Error preparing check: %s\n", sqlite3_errmsg(data_passer->run_time.db));
+	}
+
 	g_slist_foreach(data_passer->table_characteristics, get_csv_files, data_passer);
 
 	//get_csv_files(data_passer);

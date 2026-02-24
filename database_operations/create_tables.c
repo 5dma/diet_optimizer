@@ -160,8 +160,9 @@ void make_table(gpointer filename, gpointer user_data) {
 	/* Read from the second to last line, deciphering the SQLlite data type. */
 	guint current_column;
 	while (fgets(line, sizeof(line), file) != NULL) {
-		//g_print("%s\n", line);
-
+		/*if (strcmp(table_name, "food_attribute") == 0) {
+			g_print("%s\n", line);
+		}*/
 		g_regex_match(data_passer->csv_column_name_regex, line, 0, &match_info);
 		if (data_passer->error) {
 			g_print("Error matching regex: %s\n", data_passer->error->message);
