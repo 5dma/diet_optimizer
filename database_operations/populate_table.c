@@ -38,7 +38,9 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 
 
 	while (fgets(line, sizeof(line), csv_file) != NULL) {
-		//g_print("%s\n", line);
+/*		if (strcmp(table_name, "food_nutrient") == 0) {
+		g_print("%s\n", line);
+	}*/
 		g_regex_match(data_passer->csv_column_name_regex, line, 0,
 				&match_info);
 		if (data_passer->error) {
@@ -57,10 +59,18 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 					(Column_Definition*) table_column->data;
 
 			switch (column_definition->column_type) {
+
+			case NULL_S:
+				bind_return = sqlite3_bind_null(stmt, bind_index);
+				if (bind_return != SQLITE_OK) {
+					g_print("Null bind failed: %s\n",
+							sqlite3_errmsg(data_passer->run_time.db));
+				}
+				break;
 			case INTEGER:
 				bind_return = sqlite3_bind_int64(stmt, bind_index, atoi(match));
 				if (bind_return != SQLITE_OK) {
-					g_print("Execution failed: %s\n",
+					g_print("Integer bind failed: %s\n",
 							sqlite3_errmsg(data_passer->run_time.db));
 				}
 				break;
@@ -68,7 +78,7 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 			case REAL:
 				bind_return = sqlite3_bind_double(stmt, bind_index, atof(match));
 				if (bind_return != SQLITE_OK) {
-					g_print("Execution failed: %s\n",
+					g_print("Real bind failed: %s\n",
 							sqlite3_errmsg(data_passer->run_time.db));
 				}
 				break;
@@ -77,7 +87,7 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 				bind_return = sqlite3_bind_text(stmt, bind_index, match, -1,
 				SQLITE_TRANSIENT);
 				if (bind_return != SQLITE_OK) {
-					g_print("Execution failed: %s\n",
+					g_print("Text bind failed: %s\n",
 							sqlite3_errmsg(data_passer->run_time.db));
 				}
 				break;
