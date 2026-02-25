@@ -2,7 +2,40 @@
 #include <stdio.h>
 #include "utilities.h"
 #define LOG_LEVEL_LENGTH 50
+/**
 
+    @file logging.c
+    @brief Functions for logging messages to a log file.
+    This file contains functions to write log messages at various log levels
+    and to initialize the logging system by opening a log file for output. */
+
+/**
+ * @brief Writes a log message to the specified output stream.
+ *
+ * This function formats and sends a log message to the output stream,
+ * prefixed with the corresponding log level and a timestamp. The log
+ * levels include ERROR, CRITICAL, WARNING, MESSAGE, INFO, and DEBUG.
+
+	Examples for calling this function:
+	- `write_log_message(G_LOG_LEVEL_CRITICAL, message, data_passer->run_time.log_file);`
+	- `write_log_message(G_LOG_LEVEL_WARNING, message, data_passer->run_time.log_file);`
+	- `write_log_message(G_LOG_LEVEL_MESSAGE, message, data_passer->run_time.log_file);`
+	- `write_log_message(G_LOG_LEVEL_INFO, message, data_passer->run_time.log_file);`
+	- `write_log_message(G_LOG_LEVEL_DEBUG, message, data_passer->run_time.log_file);`
+
+
+ *
+ * @param log_level The severity level of the log message, represented as
+ *                  GLogLevelFlags.
+ * @param message The message string to log.
+ * @param user_data A pointer to user-defined data, which is expected to be a
+ *                  file stream (e.g., a FILE pointer).
+ *
+ * @note The function assumes that the user_data pointer is valid and refers
+ *       to an open file stream. The format for log messages is `%-8s %%s %%s\n`
+ *       where the first `%%s` is the log level, the second `%%s` is the timestamp,
+ *       and the third `%%s` is the log message.
+ */
 void write_log_message(GLogLevelFlags log_level, const gchar *message, gpointer user_data) {
 	FILE *stream = (FILE*) user_data;
 
@@ -40,6 +73,21 @@ void write_log_message(GLogLevelFlags log_level, const gchar *message, gpointer 
 	g_date_time_unref(date_time);
 }
 
+
+/**
+ * @brief Initializes the logger by opening the log file for appending.
+ *
+ * This function constructs the file path for the log file using the
+ * data directory and filename from the `Data_Passer` structure. It attempts
+ * to open the log file in append mode. If successful, logging can proceed;
+ * otherwise, it prints an error message and returns FALSE.
+ *
+ * @param data_passer A pointer to a Data_Passer structure that contains the
+ *                    data directory and log filename.
+ *
+ * @return gboolean Returns `TRUE` if the log file opened successfully,
+ *                  or `FALSE` if it failed to open.
+ */
 gboolean start_logger(Data_Passer *data_passer) {
 
 	gchar log_file[256];
@@ -49,16 +97,6 @@ gboolean start_logger(Data_Passer *data_passer) {
 		g_print("Could not open file, no logging will be done\n");
 		return FALSE;
 	}
-
-/*
-	const gchar message[] = "Hello there";
-
-	write_log_message(G_LOG_LEVEL_CRITICAL, message, data_passer->run_time.log_file);
-	write_log_message(G_LOG_LEVEL_WARNING, message, data_passer->run_time.log_file);
-	write_log_message(G_LOG_LEVEL_MESSAGE, message, data_passer->run_time.log_file);
-	write_log_message(G_LOG_LEVEL_INFO, message, data_passer->run_time.log_file);
-	write_log_message(G_LOG_LEVEL_DEBUG, message, data_passer->run_time.log_file);
-*/
 
 	return TRUE;
 }

@@ -5,3 +5,5 @@ obj/
 bin/
 Debug/
 *.swp
+*.bak
+html/

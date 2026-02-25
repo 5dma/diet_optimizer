@@ -1,7 +1,25 @@
 #include <headers.h>
 #include <stddef.h>
+/**
+    @file cleanup.c
+
+    @brief Functions for freeing resources and performing cleanup.
+
+    This file contains functions to free dynamically allocated memory for foreign key
+    structures, table characteristics, and to perform cleanup for the `Data_Passer` structure.
+*/
 
 
+/**
+ * @brief Frees memory allocated for a `Foreign_Key` structure.
+ *
+ * This callback function frees memory for the local column, foreign column, and
+ * foreign table associated with a foreign key, and then frees the foreign key
+ * structure itself.
+ *
+ * @param data A pointer to the `Foreign_Key` structure to be freed.
+ * @see `free_table_characteristics`
+ */
 void free_foreign_keys(gpointer data) {
 	Foreign_Key *foreign_key = (Foreign_Key *) data;
 	g_free(foreign_key->local_column);
@@ -10,6 +28,18 @@ void free_foreign_keys(gpointer data) {
 	g_free(foreign_key);
 }
 
+
+/**
+ * @brief Frees memory allocated for a `Table_Characteristic` structure.
+ *
+ * This callback function frees memory for the table name, primary key, and any
+ * associated foreign keys within a `Table_Characteristic` structure. It also
+ * frees the Table_Characteristic structure itself once all its components
+ * have been released.
+ *
+ * @param data A pointer to the Table_Characteristic structure to be freed.
+ * @see `free_foreign_keys`
+ */
 void free_table_characteristics(gpointer data) {
 	Table_Characteristic *table_characteristic = (Table_Characteristic *)data;
 	g_free(table_characteristic->table_name );
@@ -20,7 +50,17 @@ void free_table_characteristics(gpointer data) {
 	g_free(table_characteristic);
 }
 
-
+/**
+ * @brief Cleans up and frees allocated memory in the `Data_Passer` structure.
+ *
+ * This function releases all dynamically allocated memory associated with the
+ * `Data_Passer` structure, including file paths, log files, CSV file lists,
+ * and table characteristics. It also ensures that the database connection
+ * is closed properly.
+ *
+ * @param data_passer A pointer to the Data_Passer structure to be cleaned up.
+ * @see `free_table_characteristics`
+ */
 void cleanup(Data_Passer *data_passer) {
     if (data_passer->data_directory) {
         g_free(data_passer->data_directory);
