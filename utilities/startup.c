@@ -10,8 +10,6 @@
  and initialize the data passer structure used throughout the application.
  */
 
-
-
 /**
  * @brief Reads configuration data from a JSON file.
  *
@@ -27,7 +25,6 @@
 gboolean read_configuration_data(Data_Passer *data_passer) {
 	JsonParser *parser;
 	GError *error = NULL;
-
 
 	gboolean input_file_exists = g_file_test(CONFIG_FILE, G_FILE_TEST_EXISTS);
 	if (!input_file_exists) {
@@ -67,7 +64,6 @@ gboolean read_configuration_data(Data_Passer *data_passer) {
 	g_object_unref(parser);
 	return TRUE;
 }
-
 
 /**
  * @brief Initializes a new Data_Passer structure.

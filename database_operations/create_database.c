@@ -36,15 +36,19 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 	rc = sqlite3_exec(data_passer->run_time.db, "PRAGMA foreign_keys = ON", 0,
 			0, &errmsg);
 	if (rc != SQLITE_OK) {
-		g_print("SQL error: %s\n", errmsg);
+		write_log_message(G_LOG_LEVEL_CRITICAL, data_passer->run_time.log_file,
+				"CREATE TABLE command failed. %s\n", errmsg);
 		sqlite3_free(errmsg);
+		return FALSE;
 	}
 
 	if (sqlite3_prepare_v2(data_passer->run_time.db,
 			"SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?",
 			-1, &(data_passer->stmt_is_table_exists), NULL) != SQLITE_OK) {
-		g_print("Error preparing check: %s\n",
+		write_log_message(G_LOG_LEVEL_CRITICAL, data_passer->run_time.log_file,
+				"The prepare statement failed. %s\n",
 				sqlite3_errmsg(data_passer->run_time.db));
+		return FALSE;
 	}
 
 	g_slist_foreach(data_passer->table_characteristics, get_csv_files,
@@ -61,10 +65,10 @@ gboolean create_database(Data_Passer *data_passer, gchar *database_file) {
 			G_REGEX_MATCH_DEFAULT, &(data_passer->error));
 
 	if (data_passer->csv_column_name_regex == NULL) {
-		g_print(
-				"Error creating regex: %s, will not be able to create the database",
-				data_passer->error->message);
+		write_log_message(G_LOG_LEVEL_CRITICAL, data_passer->run_time.log_file,
+						"Error creating regex: %s, will not be able to create the database.", data_passer->error->message);
 		g_error_free(data_passer->error);
+		return FALSE;
 	}
 
 	g_slist_foreach(data_passer->run_time.csv_files, make_table, data_passer);
@@ -94,19 +98,16 @@ gboolean open_database(Data_Passer *data_passer) {
 	pointer = g_stpcpy(pointer, data_passer->database_filename);
 
 	if (!g_file_test(database_file, G_FILE_TEST_EXISTS)) {
-		write_log_message(G_LOG_LEVEL_INFO,
-				data_passer->run_time.log_file, "%s",
-				"Database not found, creating it");
+		write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file,
+				"%s", "Database not found, creating it");
 
 		if (create_database(data_passer, database_file)) {
-			write_log_message(G_LOG_LEVEL_INFO,
-					data_passer->run_time.log_file, "%s",
-					"Successfully created the database");
+			write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file,
+					"%s", "Successfully created the database");
 			return TRUE;
 		} else {
-			write_log_message(G_LOG_LEVEL_INFO,
-					data_passer->run_time.log_file, "%s",
-					"Successfully created the database");
+			write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file,
+					"%s", "Successfully created the database");
 
 			return FALSE;
 		}
@@ -114,16 +115,14 @@ gboolean open_database(Data_Passer *data_passer) {
 	} else {
 		rc = sqlite3_open(database_file, &(data_passer->run_time.db));
 		if (rc == SQLITE_OK) {
-			write_log_message(G_LOG_LEVEL_INFO,
-					data_passer->run_time.log_file, "%s",
-					"Successfully opened the database");
+			write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file,
+					"%s", "Successfully opened the database");
 			return TRUE;
 		}
 
 	}
-	write_log_message(G_LOG_LEVEL_CRITICAL,
-			data_passer->run_time.log_file, "%s",
-			"Could not open the database, exiting.");
+	write_log_message(G_LOG_LEVEL_CRITICAL, data_passer->run_time.log_file,
+			"%s", "Could not open the database, exiting.");
 
 	return FALSE;
 }

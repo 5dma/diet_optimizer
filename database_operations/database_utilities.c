@@ -23,7 +23,6 @@ void get_table_name_from_csv_name(gchar table_name[], const gchar *csv_name) {
 	guint num_characters_in_table_name = extension_start - csv_name;
 	strncpy(table_name, csv_name, num_characters_in_table_name);
 	table_name[num_characters_in_table_name + 1] = '\0';
-
 }
 
 /**

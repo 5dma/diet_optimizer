@@ -40,26 +40,31 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 	command_pointer = g_stpcpy(command_pointer, table_name);
 	command_pointer = g_stpcpy(command_pointer, " VALUES (");
 	guint number_dummies = 2 * (number_columns - 1) + 1;
-	strncpy(command_pointer, data_passer->sqlite_prepare_dummies, number_dummies);
+	strncpy(command_pointer, data_passer->sqlite_prepare_dummies,
+			number_dummies);
 	command_pointer += number_dummies;
 	command_pointer = g_stpcpy(command_pointer, ")");
-
+	write_log_message(G_LOG_LEVEL_DEBUG, data_passer->run_time.log_file,
+			"The prepare statement is %s", insert_statement);
 	sqlite3_stmt *stmt;
-	int rc = sqlite3_prepare_v2(data_passer->run_time.db, insert_statement,
-			-1, &stmt, NULL);
+	int rc = sqlite3_prepare_v2(data_passer->run_time.db, insert_statement, -1,
+			&stmt, NULL);
 	if (rc != SQLITE_OK) {
 		g_print("Could not prepare the insert statement\n");
-		g_print("SQL Error (Code %d): %s\n", rc, sqlite3_errmsg(data_passer->run_time.db));
+		write_log_message(G_LOG_LEVEL_CRITICAL, data_passer->run_time.log_file,
+				"SQL Error (Code %d): %s", rc,
+				sqlite3_errmsg(data_passer->run_time.db));
 	}
 
-	sqlite3_exec(data_passer->run_time.db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
-
+	sqlite3_exec(data_passer->run_time.db, "BEGIN TRANSACTION;", NULL, NULL,
+			NULL);
 
 	while (fgets(line, sizeof(line), csv_file) != NULL) {
-		g_regex_match(data_passer->csv_column_name_regex, line, 0,
-				&match_info);
+		g_regex_match(data_passer->csv_column_name_regex, line, 0, &match_info);
 		if (data_passer->error) {
-			g_print("Error matching regex: %s\n", data_passer->error->message);
+			write_log_message(G_LOG_LEVEL_CRITICAL,
+					data_passer->run_time.log_file, "Error matching regex: %s",
+					data_passer->error->message);
 			g_error_free(data_passer->error);
 			return;
 		}
@@ -78,22 +83,29 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 			case NULL_S:
 				bind_return = sqlite3_bind_null(stmt, bind_index);
 				if (bind_return != SQLITE_OK) {
-					g_print("Null bind failed: %s\n",
+					write_log_message(G_LOG_LEVEL_WARNING,
+							data_passer->run_time.log_file,
+							"An SQLite null bind failed: %s",
 							sqlite3_errmsg(data_passer->run_time.db));
 				}
 				break;
 			case INTEGER:
 				bind_return = sqlite3_bind_int64(stmt, bind_index, atoi(match));
 				if (bind_return != SQLITE_OK) {
-					g_print("Integer bind failed: %s\n",
+					write_log_message(G_LOG_LEVEL_WARNING,
+							data_passer->run_time.log_file,
+							"An SQLite integer bind failed: %s",
 							sqlite3_errmsg(data_passer->run_time.db));
 				}
 				break;
 
 			case REAL:
-				bind_return = sqlite3_bind_double(stmt, bind_index, atof(match));
+				bind_return = sqlite3_bind_double(stmt, bind_index,
+						atof(match));
 				if (bind_return != SQLITE_OK) {
-					g_print("Real bind failed: %s\n",
+					write_log_message(G_LOG_LEVEL_WARNING,
+							data_passer->run_time.log_file,
+							"An SQLite real bind failed: %s",
 							sqlite3_errmsg(data_passer->run_time.db));
 				}
 				break;
@@ -102,14 +114,18 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 				bind_return = sqlite3_bind_text(stmt, bind_index, match, -1,
 				SQLITE_TRANSIENT);
 				if (bind_return != SQLITE_OK) {
-					g_print("Text bind failed: %s\n",
+					write_log_message(G_LOG_LEVEL_WARNING,
+							data_passer->run_time.log_file,
+							"An SQLite text bind failed: %s",
 							sqlite3_errmsg(data_passer->run_time.db));
 				}
 				break;
 
 			default:
-				g_print("We have a problem\n");
-
+				write_log_message(G_LOG_LEVEL_WARNING,
+						data_passer->run_time.log_file,
+						"populate_table detected a field type %s that is unknown.",
+						column_definition->column_type);
 			}
 			bind_index++;
 			g_free(match);
@@ -117,13 +133,17 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 
 		rc = sqlite3_step(stmt);
 		if (rc != SQLITE_DONE) {
-			g_print("Execution failed: %s\n",
-					sqlite3_errmsg(data_passer->run_time.db));
+			write_log_message(G_LOG_LEVEL_WARNING,
+					data_passer->run_time.log_file,
+					"%s",
+					"Executing a prepared statement failed.");
 		}
 		rc = sqlite3_reset(stmt);
 		if (rc != SQLITE_OK) {
-			g_print("Reset failed: %s\n",
-					sqlite3_errmsg(data_passer->run_time.db));
+			write_log_message(G_LOG_LEVEL_WARNING,
+					data_passer->run_time.log_file,
+					"%s",
+					"Resetting a prepared statement failed.");
 		}
 
 		g_match_info_free(match_info);
@@ -131,6 +151,8 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 	}
 	sqlite3_finalize(stmt);
 	sqlite3_exec(data_passer->run_time.db, "COMMIT;", NULL, NULL, NULL);
-
-
+	write_log_message(G_LOG_LEVEL_INFO,
+			data_passer->run_time.log_file,
+			"Successfully inserted rows into table %s",
+			table_name);
 }

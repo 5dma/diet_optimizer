@@ -36,7 +36,6 @@ void free_column_info(gpointer data) {
 	g_free((Column_Definition*) data);
 }
 
-
 /**
  * @brief Builds SQL column definition clauses for table definitions.
  *
@@ -67,7 +66,9 @@ void make_clause(gpointer data, gpointer user_data) {
 		*command_pointer = g_stpcpy(*command_pointer, "TEXT");
 		break;
 	default:
-
+		//write_log_message(G_LOG_LEVEL_MESSAGE, data_passer->run_time.log_file,
+		//		"The function make_clause encountered a data type %s that is non-standard.",
+		//		column_definition->column_type);
 	}
 	if (column_definition->is_primary_key) {
 		*command_pointer = g_stpcpy(*command_pointer, " PRIMARY KEY");
@@ -129,7 +130,12 @@ gchar* make_create_command(const gchar *table_name, GSList *table_columns,
  */
 void execute_create_table_command(const gchar *create_command,
 		Data_Passer *data_passer) {
-	g_print("%s\n", create_command);
+
+	write_log_message(G_LOG_LEVEL_INFO,
+			data_passer->run_time.log_file,
+			"Executing the command %s",
+			create_command);
+
 	gchar *errmsg = NULL;
 	int rc = sqlite3_exec(data_passer->run_time.db, create_command, 0, 0,
 			&errmsg);
@@ -138,7 +144,6 @@ void execute_create_table_command(const gchar *create_command,
 		sqlite3_free(errmsg); // Free the error message if needed
 	}
 }
-
 
 /**
  * @brief Ingests a CSV file into a table.
@@ -159,7 +164,10 @@ void make_table(gpointer filename, gpointer user_data) {
 
 	gchar *csv_pathname = make_csv_filename(data_passer->csv_file_directory,
 			csv_filename);
-	g_print("Processing %s\n", (gchar*) csv_pathname);
+	write_log_message(G_LOG_LEVEL_INFO,
+			data_passer->run_time.log_file,
+			"Processing file %s",
+			(gchar*) csv_pathname);
 
 	FILE *file = fopen(csv_pathname, "r");
 	if (!file) {
@@ -189,7 +197,10 @@ void make_table(gpointer filename, gpointer user_data) {
 	do {
 		match = g_match_info_fetch(match_info, 1); // Fetch the first capturing group
 		if (match) {
-			g_print("Found a column with title: %s\n", match);
+			write_log_message(G_LOG_LEVEL_DEBUG,
+					data_passer->run_time.log_file,
+					"Found a column with title %s",
+					match);
 			normalize_string(match);
 			Column_Definition *column_definition = g_malloc(
 					sizeof(Column_Definition));
@@ -246,10 +257,12 @@ void make_table(gpointer filename, gpointer user_data) {
 
 	gchar *create_command = make_create_command(table_name, table_columns,
 			data_passer);
-	write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file, "%s", create_command);
+	write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file, "%s",
+			create_command);
 	execute_create_table_command(create_command, data_passer);
 	g_free(create_command);
-	populate_table(file, csv_start, table_name, number_columns, table_columns, data_passer);
+	populate_table(file, csv_start, table_name, number_columns, table_columns,
+			data_passer);
 	g_slist_free_full(table_columns, free_column_info);
 	fclose(file);
 	g_free(csv_pathname);

@@ -55,6 +55,6 @@ void get_csv_files( gpointer data,  gpointer user_data) {
 	gchar *pointer = g_stpcpy (filename, data_passer->csv_file_directory);
 	pointer = g_stpcpy (filename, table_characteristic->table_name);
 	pointer = g_stpcpy (pointer,".csv");
-	write_log_message(G_LOG_LEVEL_DEBUG, data_passer->run_time.log_file, "%s", filename, data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file, "Created filename %s", filename, data_passer->run_time.log_file);
 	data_passer->run_time.csv_files = g_slist_append (data_passer->run_time.csv_files, filename);
 }
