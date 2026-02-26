@@ -246,7 +246,7 @@ void make_table(gpointer filename, gpointer user_data) {
 
 	gchar *create_command = make_create_command(table_name, table_columns,
 			data_passer);
-	write_log_message(G_LOG_LEVEL_INFO, create_command, data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file, "%s", create_command);
 	execute_create_table_command(create_command, data_passer);
 	g_free(create_command);
 	populate_table(file, csv_start, table_name, number_columns, table_columns, data_passer);

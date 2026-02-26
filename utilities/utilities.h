@@ -13,7 +13,7 @@ void cleanup(Data_Passer *data_passer);
 Data_Passer * startup();
 gboolean start_logger(Data_Passer *data_passer);
 gboolean exists_data_directory(Data_Passer *data_passer);
-void write_log_message(GLogLevelFlags log_level, const gchar *message, gpointer user_data);
+void write_log_message(GLogLevelFlags log_level, FILE * stream, const char *format, ...);
 void get_csv_files( gpointer data,  gpointer user_data);
 void normalize_string(char *str);
 #endif /* UTILITIES_UTILITIES_H_ */

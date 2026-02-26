@@ -40,7 +40,7 @@ gboolean read_configuration_data(Data_Passer *data_passer) {
 	json_parser_load_from_file(parser, CONFIG_FILE, &error);
 
 	if (error) {
-		g_print("Unable to parse `%s': %s\n", CONFIG_FILE, error->message);
+		g_print("Unable to parse `%s': %s", CONFIG_FILE, error->message);
 		g_error_free(error);
 		g_object_unref(parser);
 		return FALSE;

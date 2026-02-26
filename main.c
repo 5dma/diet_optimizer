@@ -35,8 +35,7 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	write_log_message(G_LOG_LEVEL_INFO, "Application started",
-			data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file, "%s", "Application started");
 	/* Open the database, or create a new one if it doesn't exist. */
 	if (open_database(data_passer) == FALSE) {
 		cleanup(data_passer);

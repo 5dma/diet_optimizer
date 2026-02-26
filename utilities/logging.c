@@ -1,5 +1,7 @@
 #include <glib.h>
+#include <glib/gprintf.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "utilities.h"
 /**
 
@@ -15,7 +17,7 @@
  * This constant defines the maximal length of a log level
  * (`ERROR`, `CRITICAL`, `WARNING`, etc.)
  */
-#define LOG_LEVEL_LENGTH 50 ///< Maximal length of a log level (`ERROR`, `CRITICAL`, `WARNING`, etc.)
+#define LOG_MESSAGE_LENGTH 4096 ///< Maximal length of a log message.
 
 /**
  * @brief Writes a log message to the specified output stream.
@@ -25,11 +27,8 @@
  * levels include ERROR, CRITICAL, WARNING, MESSAGE, INFO, and DEBUG.
 
 	Examples for calling this function:
-	- `write_log_message(G_LOG_LEVEL_CRITICAL, message, data_passer->run_time.log_file);`
-	- `write_log_message(G_LOG_LEVEL_WARNING, message, data_passer->run_time.log_file);`
-	- `write_log_message(G_LOG_LEVEL_MESSAGE, message, data_passer->run_time.log_file);`
-	- `write_log_message(G_LOG_LEVEL_INFO, message, data_passer->run_time.log_file);`
-	- `write_log_message(G_LOG_LEVEL_DEBUG, message, data_passer->run_time.log_file);`
+	- `write_log_message(G_LOG_LEVEL_CRITICAL, stream, "Could not read %s", "barf.csv");`
+	- `write_log_message(G_LOG_LEVEL_DEBUG, stream, "Could not read %d characters from %s",10101, "barf.csv");`
 
 
  *
@@ -44,41 +43,48 @@
  *       where the first `%%s` is the log level, the second `%%s` is the timestamp,
  *       and the third `%%s` is the log message.
  */
-void write_log_message(GLogLevelFlags log_level, const gchar *message, gpointer user_data) {
-	FILE *stream = (FILE*) user_data;
+void write_log_message(GLogLevelFlags log_level, FILE * stream, const char *format, ...) {
+	va_list args;
+	va_start(args, format);
 
-	gchar my_log_level[LOG_LEVEL_LENGTH + 1];
+	gchar log_message[LOG_MESSAGE_LENGTH];
+	gchar *message_pointer;
 
 	switch (log_level) {
-	case G_LOG_LEVEL_ERROR:
-		g_strlcpy(my_log_level, "ERROR", LOG_LEVEL_LENGTH);
-		break;
-	case G_LOG_LEVEL_CRITICAL:
-		g_strlcpy(my_log_level, "CRITICAL", LOG_LEVEL_LENGTH);
-		break;
-	case G_LOG_LEVEL_WARNING:
-		g_strlcpy(my_log_level, "WARNING", LOG_LEVEL_LENGTH);
-		break;
-	case G_LOG_LEVEL_MESSAGE:
-		g_strlcpy(my_log_level, "MESSAGE", LOG_LEVEL_LENGTH);
-		break;
-	case G_LOG_LEVEL_INFO:
-		g_strlcpy(my_log_level, "INFO", LOG_LEVEL_LENGTH);
-		break;
-	case G_LOG_LEVEL_DEBUG:
-		g_strlcpy(my_log_level, "DEBUG", LOG_LEVEL_LENGTH);
-		break;
-	default:
-		g_strlcpy(my_log_level, "MESSAGE", LOG_LEVEL_LENGTH);
-		break;
+		case G_LOG_LEVEL_ERROR:
+			g_sprintf(log_message,"%-9s ","ERROR");
+			break;
+		case G_LOG_LEVEL_CRITICAL:
+			g_sprintf(log_message,"%-9s ","CRITICAL");
+			break;
+		case G_LOG_LEVEL_WARNING:
+			g_sprintf(log_message,"%-9s ","WARNING");
+			break;
+		case G_LOG_LEVEL_MESSAGE:
+			g_sprintf(log_message,"%-9s ","MESSAGE");
+			break;
+		case G_LOG_LEVEL_INFO:
+			g_sprintf(log_message,"%-9s ","INFO");
+			break;
+		case G_LOG_LEVEL_DEBUG:
+			g_sprintf(log_message,"%-9s ","DEBUG");
+			break;
+		default:
+			g_sprintf(log_message,"%-9s ","DEBUG");
+			break;
 	}
+	message_pointer = log_message + 9;
 
-	GDateTime *date_time = g_date_time_new_now_local();
-	gchar *date_time_string = g_date_time_format(date_time, "%H:%M:%S");
-	fprintf(stream, "%-8s %s %s\n", my_log_level, date_time_string, message);
-	fflush(stream);
+    GDateTime *date_time = g_date_time_new_now_local();
+    gchar *date_time_string = g_date_time_format(date_time, "%H:%M:%S ");
+	message_pointer = g_stpcpy(message_pointer, date_time_string);
+	vsprintf(message_pointer, format, args);
+	fprintf(stream, "%s\n", log_message);
+	fflush (stream);
 	g_free(date_time_string);
 	g_date_time_unref(date_time);
+	va_end(args);
+
 }
 
 

@@ -74,8 +74,7 @@ void cleanup(Data_Passer *data_passer) {
     if (data_passer->csv_file_directory) {
         g_free(data_passer->csv_file_directory);
     }
-
-	write_log_message(G_LOG_LEVEL_INFO, "Application ending, shutting down log file", data_passer->run_time.log_file);
+	write_log_message(G_LOG_LEVEL_INFO, data_passer->run_time.log_file, "%s", "Application ending, shutting down log file");
 
 	if (data_passer->run_time.log_file) {
 		fclose(data_passer->run_time.log_file);
