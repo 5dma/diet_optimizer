@@ -1,4 +1,3 @@
-
 #include <headers.h>
 #include <glib.h>
 
@@ -10,7 +9,6 @@
  * reading configuration from disk, and freeing memory.
  */
 
-
 /**
  * @brief Entry point of the application.
  *
@@ -21,10 +19,12 @@
  *
  * @return int Returns 0 on success, or 1 on failure.
  */
-int main(void)
-{
+int main(void) {
 	/* Initialize data_passer and read configuration from disk. */
 	Data_Passer *data_passer = startup();
+	if (!data_passer) {
+		return EXIT_FAILURE;
+	}
 	if (!exists_data_directory(data_passer)) {
 		cleanup(data_passer);
 		return EXIT_FAILURE;
@@ -35,6 +35,8 @@ int main(void)
 		return EXIT_FAILURE;
 	}
 
+	write_log_message(G_LOG_LEVEL_INFO, "Application started",
+			data_passer->run_time.log_file);
 	/* Open the database, or create a new one if it doesn't exist. */
 	if (open_database(data_passer) == FALSE) {
 		cleanup(data_passer);
@@ -43,6 +45,7 @@ int main(void)
 
 	/* Free memory. */
 	cleanup(data_passer);
+
 	return EXIT_SUCCESS;
 }
 

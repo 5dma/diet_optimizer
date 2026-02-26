@@ -75,15 +75,20 @@ void cleanup(Data_Passer *data_passer) {
         g_free(data_passer->csv_file_directory);
     }
 
+	write_log_message(G_LOG_LEVEL_INFO, "Application ending, shutting down log file", data_passer->run_time.log_file);
+
 	if (data_passer->run_time.log_file) {
 		fclose(data_passer->run_time.log_file);
 	}
+	/* Free the definitions of CSV files stored as a GSList in get_csv_files. */
 	if (data_passer->run_time.csv_files) {
 		g_slist_free_full (data_passer->run_time.csv_files, g_free);
 	}
 	if (data_passer->run_time.db) {
 		sqlite3_close(data_passer->run_time.db);
 	}
+
+	/* Free the definitions of table characteristics stored as a GSList in read_table_characteristic. */
 	if (data_passer->table_characteristics) {
 		g_slist_free_full (data_passer->table_characteristics, free_table_characteristics);
 	}

@@ -92,18 +92,27 @@ gboolean open_database(Data_Passer *data_passer) {
 				data_passer->run_time.log_file);
 
 		if (create_database(data_passer, database_file)) {
+			write_log_message(G_LOG_LEVEL_INFO, "Successfully created the database",
+							data_passer->run_time.log_file);
 			return TRUE;
 		} else {
+			write_log_message(G_LOG_LEVEL_CRITICAL, "Could not create the database, exiting.",
+							data_passer->run_time.log_file);
+
 			return FALSE;
 		}
 
 	} else {
 		rc = sqlite3_open(database_file, &(data_passer->run_time.db));
 		if (rc == SQLITE_OK) {
+			write_log_message(G_LOG_LEVEL_INFO, "Successfully opened the database",
+							data_passer->run_time.log_file);
 			return TRUE;
 		}
 
 	}
+	write_log_message(G_LOG_LEVEL_CRITICAL, "Could not open the database, exiting.",
+								data_passer->run_time.log_file);
 
 	return FALSE;
 }
