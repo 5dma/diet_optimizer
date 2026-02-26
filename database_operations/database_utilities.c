@@ -1,12 +1,22 @@
-/*
- * database_utilities.c
+/**
+ * @file database_utilities.c
+ * @brief Utility functions used by other functions to use the SQLite database.
  *
- *  Created on: Feb 14, 2026
- *      Author: abba
+ * This file contains functions for extracting table names from CSV filenames,
+ * finding table definitions, and managing foreign keys for SQLite tables.
  */
 #include <glib.h>
 #include <headers.h>
 
+/**
+ * @brief Extracts the table name from a CSV filename.
+ *
+ * This function takes a CSV filename and removes the ".csv" extension,
+ * storing the result in the provided table_name array.
+ *
+ * @param table_name An array where the extracted table name will be stored.
+ * @param csv_name The CSV filename from which the table name is derived.
+ */
 void get_table_name_from_csv_name(gchar table_name[], const gchar *csv_name) {
 	memset(table_name, '\0', MAX_COLUMN_NAME_LENGTH);
 	gchar *extension_start = g_strrstr(csv_name, ".csv");
@@ -16,6 +26,19 @@ void get_table_name_from_csv_name(gchar table_name[], const gchar *csv_name) {
 
 }
 
+/**
+ * @brief Finds a table definition within a GSList of table definitions.
+ *
+ * This callback function provides the matching condition for finding
+ * a table definition in a GSList of table definitions. If the candidate
+ * table definition has the same name as the passed table name, then
+ * a match is found.
+ *
+ * @param data A pointer to the Table_Characteristic structure being checked.
+ * @param user_data A pointer to the table name to compare against.
+ * @return TRUE if the table name matches, FALSE otherwise.
+ * @sa make_create_command
+ */
 gboolean find_table_definition(gconstpointer data, gconstpointer user_data) {
 	Table_Characteristic *table_characteristic = (Table_Characteristic*) data;
 	gchar *table_name = (gchar*) user_data;
@@ -23,6 +46,20 @@ gboolean find_table_definition(gconstpointer data, gconstpointer user_data) {
 }
 
 
+/**
+ * @brief Finds a table definition containing foreign keys within a GSList of table definitions.
+ *
+ * This callback function provides the matching condition for finding
+ * a table definition in a GSList of table definitions. If the candidate
+ * table definition has the same name as the passed table name, _and_ if the
+ * table definition contains clauses for foreign keys, then
+ * a match is found.
+ *
+ * @param data A pointer to the Table_Characteristic structure being checked.
+ * @param user_data A pointer to the table name to compare against.
+ * @return TRUE if the table definition matches and has foreign keys, FALSE otherwise.
+ * @sa make_create_command
+ */
 gboolean find_table_definition_with_foreign_key(gconstpointer data, gconstpointer user_data) {
 	Table_Characteristic *table_characteristic = (Table_Characteristic*) data;
 	gchar *table_name = (gchar*) user_data;
@@ -33,6 +70,18 @@ gboolean find_table_definition_with_foreign_key(gconstpointer data, gconstpointe
 	return 1;
 }
 
+/**
+ * @brief Constructs foreign key definitions for an SQL `CREATE TABLE` command.
+ *
+ * This callback function assembles `FOREIGN KEY` clauses from
+ * the GSList of foreign keys associated with a particular column definition.
+ * See [foreign-key-clause](https://www.sqlite.org/syntax/foreign-key-clause.html)
+ * for the syntax of an SQLite foreign key clause.
+ *
+ * @param data A pointer to a Foreign_Key structure containing the foreign key details.
+ * @param user_data A pointer to the command string being constructed.
+ * @sa make_create_command
+ */
 void make_foreign_keys(gpointer data, gpointer user_data) {
 	gchar foreign_key_phrase[MAX_FOREIGN_KEY_PHRASE];
 	Foreign_Key *foreign_key = (Foreign_Key*) data;

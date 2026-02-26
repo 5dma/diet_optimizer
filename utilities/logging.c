@@ -1,13 +1,21 @@
 #include <glib.h>
 #include <stdio.h>
 #include "utilities.h"
-#define LOG_LEVEL_LENGTH 50
 /**
 
     @file logging.c
     @brief Functions for logging messages to a log file.
     This file contains functions to write log messages at various log levels
     and to initialize the logging system by opening a log file for output. */
+
+
+/**
+ * @brief Maximal length of a log level literal.
+ *
+ * This constant defines the maximal length of a log level
+ * (`ERROR`, `CRITICAL`, `WARNING`, etc.)
+ */
+#define LOG_LEVEL_LENGTH 50 ///< Maximal length of a log level (`ERROR`, `CRITICAL`, `WARNING`, etc.)
 
 /**
  * @brief Writes a log message to the specified output stream.

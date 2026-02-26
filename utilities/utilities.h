@@ -1,14 +1,13 @@
-/*
- * utilities.h
+/**
+ * @file utilities.h
+ * @brief Prototypes for functions.
  *
- *  Created on: Feb 5, 2026
- *      Author: abba
  */
 
 #include "../headers/headers.h"
 
 #ifndef UTILITIES_UTILITIES_H_
-#define UTILITIES_UTILITIES_H_
+#define UTILITIES_UTILITIES_H_  ///< Include guard to prevent multiple inclusions
 
 void cleanup(Data_Passer *data_passer);
 Data_Passer * startup();

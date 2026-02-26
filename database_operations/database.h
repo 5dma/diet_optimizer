@@ -1,14 +1,13 @@
-/*
- * headers.h
+/**
+ * @file database.h
+ * @brief Prototypes for functions.
  *
- *  Created on: Feb 5, 2026
- *      Author: abba
  */
 #include <json-glib/json-glib.h>
 #include "../headers/headers.h"
 
 #ifndef DATABASE_OPERATIONS_DATABASE_H_
-#define DATABASE_OPERATIONS_DATABASE_H_
+#define DATABASE_OPERATIONS_DATABASE_H_  ///< Include guard to prevent multiple inclusions
 
 gboolean open_database(Data_Passer *data_passer);
 void do_sqlite_tests(const gchar *csv_value, gpointer user_data);

@@ -3,8 +3,6 @@
 /**
  * @file field_tests.c
  * @brief Defines functions for analyzing the columns in a CSV file.
- *
- * The functions described in this file are part of the analysis algorithm. For an overview of the algorithm, see \ref algorithm.
  */
 
 /**
@@ -35,7 +33,7 @@ gboolean is_null(const gchar *token) {
 }
 
 /**
- * Checks if a passed value is a float.
+ * Checks if a passed value is a real.
  * This function relies on [g_ascii_strtod](https://docs.gtk.org/glib/func.ascii_strtod.html). This function scans the passed token, and returns the float (or double) corresponding to all the characters that can comprise a float as well as the pointer to the last such character. If the function cannot do any such conversation (such as if the first character is alphabetic), the function returns `0.0`.
  *
  * As some tokens passed to this function may be alphanumeric (such as `6c4759f60000`), we have to ensure that the function does not return a false result. For example, if we pass `6c4759f60000`, the return value of `g_ascii_strtod` is `6` and the returned end pointer also points to `6`. We therefore need to ensure that the end pointer points to the actual last character in the token. If it doesn't we know that the conversion failed. Furthermore, `g_ascii_strtod` returns `0` if the conversion fails, so we need to check the first character of the token to verify it isn't zero. To summarize:

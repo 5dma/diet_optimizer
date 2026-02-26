@@ -5,7 +5,7 @@
  *
  */
 
-#ifndef HEADERS_CONSTANTS_H_
+#ifndef HEADERS_CONSTANTS_H_  ///< Include guard to prevent multiple inclusions
 #define HEADERS_CONSTANTS_H_
 
 /**

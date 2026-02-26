@@ -1,13 +1,31 @@
-/*
- * populate_table.c
+/**
+ * @file populate_table.c
+ * @brief Functions for populating a database table from a CSV file.
  *
- *  Created on: Feb 19, 2026
- *      Author: abba
+ * This file includes functions for reading data from a CSV file and inserting
+ * it into an SQLite database table, with support for various data types.
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
 #include <headers.h>
+
+/**
+ * @brief Populates a using `INSERT INTO` statements into existing SQLite tables.
+ *
+ * This function prepares an `INSERT INTO` statement. It then
+ * reads values from a given CSV file, binds those values to the
+ * prepared statement, and then executes the statement. The statements
+ * are batched using SQLite's `BEGIN TRANSACTION` and `COMMIT` statements.
+ *
+ * @param csv_file Pointer to the CSV file.
+ * @param csv_start The byte position in the CSV file where data starts.
+ * @param table_name The name of the database table into which data is inserted.
+ * @param number_columns The number of columns in the table to be populated.
+ * @param table_columns A GSList of Column_Definition for each column in the table.
+ * @param data_passer A pointer to the Data_Passer structure containing
+ *                    database context and configuration.
+ */
 void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 		guint number_columns, GSList *table_columns, Data_Passer *data_passer) {
 
@@ -38,9 +56,6 @@ void populate_table(FILE *csv_file, const guint csv_start, gchar table_name[],
 
 
 	while (fgets(line, sizeof(line), csv_file) != NULL) {
-/*		if (strcmp(table_name, "food_nutrient") == 0) {
-		g_print("%s\n", line);
-	}*/
 		g_regex_match(data_passer->csv_column_name_regex, line, 0,
 				&match_info);
 		if (data_passer->error) {
